@@ -1,16 +1,27 @@
-# Compiled class file
-*.class
+# Global ignores for this monorepo
 
-# Log file
+# OS
+Thumbs.db
+.DS_Store
+ehthumbs.db
+Desktop.ini
+
+# Logs
+logs/
 *.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
 
-# BlueJ files
-*.ctxt
+# Node (frontend)
+client/node_modules/
+client/dist/
+client/dist-ssr/
+# Vite/Dev output
+client/.vite/
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# Java / Gradle (backend)
+*.class
 *.jar
 *.war
 *.nar
@@ -18,7 +29,38 @@
 *.zip
 *.tar.gz
 *.rar
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+.gradle/
+server/build/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDEs / editors
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+*.code-workspace
+
+# Environment / secrets
+.env
+server/.env
+client/.env
+
+# Misc
+dist/
+dist-ssr/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Local config
+*.local
+
+# Keep lockfiles in version control (do not ignore package-lock.json / yarn.lock / pnpm-lock.yaml)
