@@ -1,0 +1,31 @@
+# Git
+.git
+.gitignore
+.github
+
+# Documentation
+*.md
+README.md
+
+# IDE
+.idea
+.vscode
+*.iml
+
+# Build artifacts
+**/build/
+**/target/
+**/.gradle/
+**/node_modules/
+**/dist/
+
+# Environment files (will be passed via docker-compose)
+**/.env
+**/.env.local
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

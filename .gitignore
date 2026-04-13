@@ -63,4 +63,12 @@ dist-ssr/
 # Local config
 *.local
 
+*CLAUDE*
+*copilot*
+
+
+# .md files (for now will do README.md in the future)
+*.md
+
+
 # Keep lockfiles in version control (do not ignore package-lock.json / yarn.lock / pnpm-lock.yaml)

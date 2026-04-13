@@ -25,52 +25,77 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
 
+  # CONFIG SMTP setup for passwordless login codes
+  mail:
+    host: ${MAIL_HOST:}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS_ENABLE:true}
+          connectiontimeout: ${MAIL_CONNECTION_TIMEOUT_MS:5000}
+          timeout: ${MAIL_TIMEOUT_MS:5000}
+          writetimeout: ${MAIL_WRITE_TIMEOUT_MS:5000}
+
   # OAuth2 Configuration
-  # Note: OAuth2 is disabled by default. To enable, set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET
-  # security:
-  #   oauth2:
-  #     client:
-  #       registration:
-  #         google:
-  #           client-id: ${GOOGLE_CLIENT_ID:your-client-id}
-  #           client-secret: ${GOOGLE_CLIENT_SECRET:your-client-secret}
-  #           scope:
-  #             - email
-  #             - profile
-  #       provider:
-  #         google:
-  #           authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-  #           token-uri: https://oauth2.googleapis.com/token
-  #           user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            # CONFIG set GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET with real values
+            client-id: ${GOOGLE_CLIENT_ID:your-client-id}
+            client-secret: ${GOOGLE_CLIENT_SECRET:your-client-secret}
+            scope:
+              - email
+              - profile
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
 
 # Application Configuration
 app:
   jwt:
     secret: ${JWT_SECRET}
-    access-expiration-ms: 5*60*1000 # 5 minutes
-    refresh-expiration-ms: 7*24*60*60*1000 # 7 days
-  
+    expiration: 300000 # 5 minutes
+    refreshExpiration: 604800000 # 7 days
+
+  auth:
+    # CONFIG passwordless verification code generation
+    code:
+      length: ${AUTH_CODE_LENGTH:6}
+      ttl-seconds: ${AUTH_CODE_TTL_SECONDS:600}
+    mail:
+      from: ${AUTH_MAIL_FROM:no-reply@lance.local}
+      subject: ${AUTH_MAIL_SUBJECT:Your Lance login code}
+    # CONFIG refresh token cookie behavior
+    refresh-cookie:
+      name: ${AUTH_REFRESH_COOKIE_NAME:refresh_token}
+      path: ${AUTH_REFRESH_COOKIE_PATH:/auth}
+      max-age-seconds: ${AUTH_REFRESH_COOKIE_MAX_AGE_SECONDS:604800}
+      secure: ${AUTH_REFRESH_COOKIE_SECURE:false}
+      same-site: ${AUTH_REFRESH_COOKIE_SAME_SITE:Lax}
+
   oauth2:
-    authorized-redirect-uris:
-      - ${APP_FRONTEND_URL:http://localhost:5173}/oauth2/redirect
-  
-  cors:
-    allowed-origins:
-      - ${APP_FRONTEND_URL:http://localhost:5173}
-      - http://localhost:3000
-  
+    # CONFIG frontend route used after successful OAuth2 login (without token in URL)
+    frontend-callback-path: ${APP_OAUTH2_FRONTEND_CALLBACK_PATH:/oauth2/callback}
   ai-service:
     base-url: ${AI_SERVICE_URL:http://localhost:8000}
     timeout-seconds: 30
-  
-  scheduling:
-    default-working-hours-per-day: 8
-    default-start-hour: 9
+
 
 # Server Configuration
 server:
   port: ${SERVER_PORT:8080}
 
+client:
+  url: ${APP_FRONTEND_URL:http://localhost:3000}
 # Actuator Configuration
 management:
   endpoints:

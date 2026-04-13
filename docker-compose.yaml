@@ -32,31 +32,23 @@ services:
         condition: service_healthy
     env_file:
       - ./server/.env
+    ports: 
+     - "8080:8080"
     environment:
-      # Database Configuration (hardcoded for Docker network)
+      # CONFIG Docker network overrides host values from server/.env
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: postgres
-      DB_USERNAME: ${DB_USERNAME:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-
-
-
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
       # Server Configuration
       SERVER_PORT: 8080
-      
-      # Override with .env file values or use defaults
-      JWT_SECRET: ${JWT_SECRET}
-      APP_FRONTEND_URL: ${APP_FRONTEND_URL}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      AI_SERVICE_URL: ${AI_SERVICE_URL}
-      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      # CONFIG runtime app vars (JWT/OAuth2/SMTP/etc.) are loaded from env_file: ./server/.env
     networks:
       - lance-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
-      interval: 30s
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8080/actuator/health"]
+      interval: 120s
       timeout: 10s
       retries: 3
       start_period: 60s
@@ -67,7 +59,7 @@ services:
       context: ./client
       dockerfile: Dockerfile
       args:
-        - VITE_API_URL=${VITE_API_URL}
+        - VITE_API_URL=${VITE_API_URL:-/api}
     container_name: lance-frontend
     restart: unless-stopped
     depends_on:
@@ -80,7 +72,8 @@ services:
     networks:
       - lance-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/"]
+      # CONFIG use IPv4 loopback to avoid localhost->IPv6 (::1) healthcheck failures in nginx container
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/"]
       interval: 30s
       timeout: 5s
       retries: 3
