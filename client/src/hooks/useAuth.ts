@@ -1,23 +1,13 @@
 import { useContext } from 'react';
-import AuthContext from '../contexts/AuthContext';
-import type { User, LoginRequest, RegisterRequest } from '../types';
+import { AuthContext } from '@contexts/AuthContext';
 
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-  login: (data: LoginRequest) => Promise<void>;
-  register: (data: RegisterRequest) => Promise<void>;
-  logout: () => Promise<void>;
-  refreshUser: () => Promise<void>;
-}
-
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+// Components call useAuth() — never useContext(AuthContext) directly.
+// The null check here turns "forgot to wrap in AuthProvider" into a loud error
+// instead of a silent undefined at runtime.
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used inside <AuthProvider>');
   }
-  return context;
+  return ctx;
 }
-
-export default useAuth;

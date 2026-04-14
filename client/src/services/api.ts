@@ -1,253 +1,117 @@
-/**
- * API Client Module for FreelanceOS
- * 
- * This module provides the HTTP client configuration and API service functions
- * for communicating with the Spring Boot backend.
- */
+import axios, {
+  AxiosError,
+  type AxiosInstance,
+  type InternalAxiosRequestConfig,
+} from 'axios';
+import type { AccessTokenResponse } from '@/types/auth';
 
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import type {
-  AuthResponse,
-  LoginRequest,
-  RegisterRequest,
-  User,
-  Client,
-  ClientCreateDto,
-  ClientUpdateDto,
-  Project,
-  ProjectCreateDto,
-  ProjectUpdateDto,
-  Task,
-  TaskCreateDto,
-  TaskUpdateDto,
-  CalendarEvent,
-  CalendarEventCreateDto,
-  ScheduleResult,
-  AiGeneratePlanRequest,
-  AiGeneratePlanResponse,
-  AiRecalculateResponse,
-} from '../types';
+// ---------------------------------------------------------------------------
+// Auth bridge
+// ---------------------------------------------------------------------------
+// api.ts must not import React/AuthContext (circular dep, wrong lifecycle).
+// Instead, AuthProvider injects callbacks on mount via configureAuth().
+// Everything below uses these callbacks to read/write the current token.
+// ---------------------------------------------------------------------------
 
-// Token storage keys
-const ACCESS_TOKEN_KEY = 'accessToken';
-const REFRESH_TOKEN_KEY = 'refreshToken';
+type TokenGetter = () => string | null;
+type TokenSetter = (token: string | null) => void;
+type LogoutHandler = () => void;
 
-// Create axios instance with base configuration
-const api = axios.create({
+let getAccessToken: TokenGetter = () => null;
+let setAccessToken: TokenSetter = () => {};
+let onLogout: LogoutHandler = () => {};
+
+export function configureAuth(opts: {
+  getAccessToken: TokenGetter;
+  setAccessToken: TokenSetter;
+  onLogout: LogoutHandler;
+}) {
+  getAccessToken = opts.getAccessToken;
+  setAccessToken = opts.setAccessToken;
+  onLogout = opts.onLogout;
+}
+
+// ---------------------------------------------------------------------------
+// Axios instance
+// ---------------------------------------------------------------------------
+// baseURL = /api so every call like api.get('/clients') hits /api/clients.
+// In dev, Vite proxy forwards /api/* → http://localhost:8080.
+// In prod, nginx proxies /api/* → http://backend:8080.
+// withCredentials = true so the refresh cookie is sent on /auth/refresh.
+// ---------------------------------------------------------------------------
+
+const api: AxiosInstance = axios.create({
   baseURL: '/api',
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  withCredentials: true,
+  headers: { 'Content-Type': 'application/json' },
 });
 
-// Flag to prevent multiple refresh attempts
-let isRefreshing = false;
-let failedQueue: Array<{
-  resolve: (token: string) => void;
-  reject: (error: Error) => void;
-}> = [];
+// Request interceptor: inject Bearer token on every call.
+api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers.set('Authorization', `Bearer ${token}`);
+  }
+  return config;
+});
 
-const processQueue = (error: Error | null, token: string | null = null) => {
-  failedQueue.forEach((promise) => {
-    if (error) {
-      promise.reject(error);
-    } else if (token) {
-      promise.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
+// ---------------------------------------------------------------------------
+// Response interceptor: silent refresh on 401
+// ---------------------------------------------------------------------------
+// When a request returns 401, we:
+//   1. Call /auth/refresh (which uses the HttpOnly refresh cookie).
+//   2. Save the new access token.
+//   3. Retry the original request with the new token.
+//
+// Concurrency: if 3 requests race and all get 401, we only want ONE refresh.
+// The other two wait on the same promise, then retry with the fresh token.
+// ---------------------------------------------------------------------------
 
-// Token management functions
-export const getAccessToken = (): string | null => {
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
-};
+let refreshPromise: Promise<string> | null = null;
 
-export const getRefreshToken = (): string | null => {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
-};
+async function refreshAccessToken(): Promise<string> {
+  // Use a fresh axios call (not `api`) to avoid re-triggering our interceptors.
+  const response = await axios.post<AccessTokenResponse>(
+    '/api/auth/refresh',
+    null,
+    { withCredentials: true }
+  );
+  return response.data.accessToken;
+}
 
-export const setTokens = (accessToken: string, refreshToken: string): void => {
-  localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-};
-
-export const clearTokens = (): void => {
-  localStorage.removeItem(ACCESS_TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
-};
-
-// Request interceptor - add auth token to requests
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = getAccessToken();
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor - handle token refresh on 401
 api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-    
-    // If 401 and not already retrying
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        // Wait for the refresh to complete
-        return new Promise((resolve, reject) => {
-          failedQueue.push({
-            resolve: (token: string) => {
-              if (originalRequest.headers) {
-                originalRequest.headers.Authorization = `Bearer ${token}`;
-              }
-              resolve(api(originalRequest));
-            },
-            reject: (err: Error) => {
-              reject(err);
-            },
-          });
-        });
-      }
+    const original = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      const refreshToken = getRefreshToken();
-      
-      if (!refreshToken) {
-        isRefreshing = false;
-        clearTokens();
-        window.location.href = '/login';
-        return Promise.reject(error);
-      }
-
-      try {
-        const response = await axios.post<AuthResponse>('/api/auth/refresh', {
-          refreshToken,
-        });
-        
-        const { accessToken, refreshToken: newRefreshToken } = response.data;
-        setTokens(accessToken, newRefreshToken);
-        
-        if (originalRequest.headers) {
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-        }
-        
-        processQueue(null, accessToken);
-        return api(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError as Error, null);
-        clearTokens();
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
-      }
+    // Only handle 401 that we haven't already retried.
+    // Never try to refresh on /auth/* endpoints — that would loop.
+    const isAuthEndpoint = original?.url?.includes('/auth/');
+    if (error.response?.status !== 401 || original._retry || isAuthEndpoint) {
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
+    original._retry = true;
+
+    try {
+      // Deduplicate concurrent refreshes.
+      refreshPromise ??= refreshAccessToken();
+      const newToken = await refreshPromise;
+      setAccessToken(newToken);
+
+      original.headers.set('Authorization', `Bearer ${newToken}`);
+      return api(original);
+    } catch (refreshError) {
+      // Refresh failed → session is dead. Clear state and let caller fail.
+      setAccessToken(null);
+      onLogout();
+      return Promise.reject(refreshError);
+    } finally {
+      refreshPromise = null;
+    }
   }
 );
-
-// ============================================================================
-// AUTH API
-// ============================================================================
-
-export const authApi = {
-  login: (data: LoginRequest) => 
-    api.post<AuthResponse>('/auth/login', data),
-  
-  register: (data: RegisterRequest) => 
-    api.post<AuthResponse>('/auth/register', data),
-  
-  refresh: (refreshToken: string) => 
-    api.post<AuthResponse>('/auth/refresh', { refreshToken }),
-  
-  logout: () => 
-    api.post('/auth/logout'),
-  
-  me: () => 
-    api.get<User>('/auth/me'),
-};
-
-// ============================================================================
-// CLIENT API
-// ============================================================================
-
-export const clientApi = {
-  getAll: () => api.get<Client[]>('/clients'),
-  getById: (id: number) => api.get<Client>(`/clients/${id}`),
-  create: (data: ClientCreateDto) => api.post<Client>('/clients', data),
-  update: (id: number, data: ClientUpdateDto) => api.put<Client>(`/clients/${id}`, data),
-  delete: (id: number) => api.delete(`/clients/${id}`),
-  search: (name: string) => api.get<Client[]>('/clients/search', { params: { name } }),
-};
-
-// ============================================================================
-// PROJECT API
-// ============================================================================
-
-export const projectApi = {
-  getAll: () => api.get<Project[]>('/projects'),
-  getById: (id: number) => api.get<Project>(`/projects/${id}`),
-  getByClient: (clientId: number) => api.get<Project[]>(`/projects/client/${clientId}`),
-  getByStatus: (status: string) => api.get<Project[]>('/projects/status', { params: { status } }),
-  create: (data: ProjectCreateDto) => api.post<Project>('/projects', data),
-  update: (id: number, data: ProjectUpdateDto) => api.put<Project>(`/projects/${id}`, data),
-  delete: (id: number) => api.delete(`/projects/${id}`),
-};
-
-// ============================================================================
-// TASK API
-// ============================================================================
-
-export const taskApi = {
-  getAll: () => api.get<Task[]>('/tasks'),
-  getById: (id: number) => api.get<Task>(`/tasks/${id}`),
-  getByProject: (projectId: number) => api.get<Task[]>(`/tasks/project/${projectId}`),
-  getOverdue: () => api.get<Task[]>('/tasks/overdue'),
-  create: (data: TaskCreateDto) => api.post<Task>('/tasks', data),
-  update: (id: number, data: TaskUpdateDto) => api.put<Task>(`/tasks/${id}`, data),
-  toggleLock: (id: number) => api.patch<Task>(`/tasks/${id}/toggle-lock`),
-  delete: (id: number) => api.delete(`/tasks/${id}`),
-};
-
-// ============================================================================
-// CALENDAR API
-// ============================================================================
-
-export const calendarApi = {
-  getAll: () => api.get<CalendarEvent[]>('/calendar'),
-  getById: (id: number) => api.get<CalendarEvent>(`/calendar/${id}`),
-  getEventsBetween: (start: string, end: string) => 
-    api.get<CalendarEvent[]>('/calendar/range', { params: { start, end } }),
-  create: (data: CalendarEventCreateDto) => api.post<CalendarEvent>('/calendar', data),
-  update: (id: number, data: CalendarEventCreateDto) => api.put<CalendarEvent>(`/calendar/${id}`, data),
-  delete: (id: number) => api.delete(`/calendar/${id}`),
-  generateSchedule: () => api.post<ScheduleResult>('/calendar/generate-schedule'),
-  generateScheduleForProject: (projectId: number) => 
-    api.post<ScheduleResult>(`/calendar/generate-schedule/project/${projectId}`),
-};
-
-// ============================================================================
-// AI API
-// ============================================================================
-
-export const aiApi = {
-  generatePlan: (data: AiGeneratePlanRequest) => 
-    api.post<AiGeneratePlanResponse>('/ai/generate-plan', data),
-  generatePlanSimple: (description: string) => 
-    api.post<AiGeneratePlanResponse>('/ai/generate-plan/simple', null, { params: { description } }),
-  recalculateCalendar: () => 
-    api.post<AiRecalculateResponse>('/ai/recalculate-calendar'),
-  recalculateProjectCalendar: (projectId: number) => 
-    api.post<AiRecalculateResponse>(`/ai/recalculate-calendar/project/${projectId}`),
-};
 
 export default api;

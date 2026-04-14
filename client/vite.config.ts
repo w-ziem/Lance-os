@@ -1,15 +1,16 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  
+  plugins: [react(), tailwindcss()],
+
   // Configure backend API proxy for development
   // This allows frontend to call /api/* and have it proxied to Spring Boot
   server: {
-    port: 5173,
+    port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',
@@ -33,8 +34,8 @@ export default defineConfig({
       '@pages': path.resolve(__dirname, './src/pages'),
       '@hooks': path.resolve(__dirname, './src/hooks'),
       '@services': path.resolve(__dirname, './src/services'),
-      '@types': path.resolve(__dirname, './src/types'),
       '@contexts': path.resolve(__dirname, './src/contexts'),
+      '@lib': path.resolve(__dirname, './src/lib'),
     },
   },
 

@@ -34,6 +34,7 @@ public class AuthMailService {
                 """.formatted(code, ttlMinutes));
 
         mailSender.send(message);
+        System.out.println("Mail sent to " + recipient);
     }
 }
 
