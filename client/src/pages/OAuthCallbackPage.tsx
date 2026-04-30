@@ -41,7 +41,7 @@ export default function OAuthCallbackPage() {
   }, [setSession]);
 
   if (status === 'success') return <Navigate to="/dashboard" replace />;
-  if (status === 'failed')  return <Navigate to="/auth" replace />;
+  if (status === 'failed') return <Navigate to="/auth" replace />;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">

@@ -19,7 +19,6 @@ interface AuthContextValue {
   accessToken: string | null;
   isAuthenticated: boolean;
   isBootstrapping: boolean;   // true while the initial silent refresh runs
-  // Called after a successful /auth/verify-code or /auth/refresh.
   setSession: (token: string, user?: AuthUser | null) => void;
   logout: () => Promise<void>;
 }
@@ -44,7 +43,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
 
-  // Ref mirrors state. api.ts reads this synchronously (can't wait for rerender).
   const accessTokenRef = useRef<string | null>(null);
 
   const setSession = useCallback((token: string, nextUser?: AuthUser | null) => {
@@ -95,7 +93,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         );
         if (!cancelled) {
           setSession(response.data.accessToken);
-          // TODO: fetch /users/me when that endpoint exists to populate user.
+          const userDto = (await axios.get<AuthUser>("/auth/me")).data
+          setUser(userDto);
         }
       } catch {
         // No valid refresh cookie → user stays logged out. Not an error.

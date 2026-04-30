@@ -1,8 +1,8 @@
 package com.wziem.lancebackend.api.controller;
 
-
 import com.wziem.lancebackend.UserService;
 import com.wziem.lancebackend.api.dto.auth.AccessTokenResponse;
+import com.wziem.lancebackend.api.dto.user.UserDto;
 import com.wziem.lancebackend.api.dto.auth.RegisterRequest;
 import com.wziem.lancebackend.api.dto.auth.RegisterResponse;
 import com.wziem.lancebackend.api.dto.auth.SendCodeRequest;
@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @AllArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
+
     private final UserService userService;
 
     @PostMapping("/register")
@@ -54,5 +55,11 @@ public class AuthController {
     public ResponseEntity<Void> logout(HttpServletResponse response) {
         userService.logout(response);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PostMapping("/me")
+    public ResponseEntity<UserDto> getMe() {
+        UserDto user = userService.getMe();
+        return ResponseEntity.status(HttpStatus.OK).body(user);
     }
 }

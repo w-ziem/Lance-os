@@ -2,6 +2,8 @@ package com.wziem.lancebackend;
 
 
 import com.wziem.lancebackend.api.dto.auth.RegisterRequest;
+import com.wziem.lancebackend.api.dto.user.UserDto;
+import com.wziem.lancebackend.config.SecurityUtils;
 import com.wziem.lancebackend.config.auth.AuthCodeProperties;
 import com.wziem.lancebackend.config.jwt.JwtService;
 import com.wziem.lancebackend.exceptions.BadAuthenticationException;
@@ -17,6 +19,7 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -179,5 +182,10 @@ public class UserService {
         int max = (int) Math.pow(10, length) - 1;
         int generated = secureRandom.nextInt(max - min + 1) + min;
         return String.valueOf(generated);
+    }
+
+    public UserDto getMe() {
+        User user = userRepository.findById(SecurityUtils.getCurrentUserId()).orElseThrow(() -> new UsernameNotFoundException("User not logged in or user not found."));
+        return new UserDto(user.getId(), user.getEmail(), user.getFullName());
     }
 }

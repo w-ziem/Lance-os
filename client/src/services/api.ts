@@ -18,8 +18,8 @@ type TokenSetter = (token: string | null) => void;
 type LogoutHandler = () => void;
 
 let getAccessToken: TokenGetter = () => null;
-let setAccessToken: TokenSetter = () => {};
-let onLogout: LogoutHandler = () => {};
+let setAccessToken: TokenSetter = () => { };
+let onLogout: LogoutHandler = () => { };
 
 export function configureAuth(opts: {
   getAccessToken: TokenGetter;
@@ -31,14 +31,6 @@ export function configureAuth(opts: {
   onLogout = opts.onLogout;
 }
 
-// ---------------------------------------------------------------------------
-// Axios instance
-// ---------------------------------------------------------------------------
-// baseURL = /api so every call like api.get('/clients') hits /api/clients.
-// In dev, Vite proxy forwards /api/* → http://localhost:8080.
-// In prod, nginx proxies /api/* → http://backend:8080.
-// withCredentials = true so the refresh cookie is sent on /auth/refresh.
-// ---------------------------------------------------------------------------
 
 const api: AxiosInstance = axios.create({
   baseURL: '/api',
@@ -46,7 +38,7 @@ const api: AxiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor: inject Bearer token on every call.
+// Request intezrceptor: inject Bearer token on every call.
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = getAccessToken();
   if (token) {
@@ -70,7 +62,7 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 let refreshPromise: Promise<string> | null = null;
 
 async function refreshAccessToken(): Promise<string> {
-  // Use a fresh axios call (not `api`) to avoid re-triggering our interceptors.
+  // refresh token need to use different axios instance not to re-trigger interceptors
   const response = await axios.post<AccessTokenResponse>(
     '/api/auth/refresh',
     null,
