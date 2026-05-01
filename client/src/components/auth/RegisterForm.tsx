@@ -53,7 +53,13 @@ export default function RegisterForm({ onRegistered }: Props) {
       />
 
       {registerUser.isError && (
-        <p className="text-sm text-red-600">
+        <p
+          style={{
+            fontSize: 13,
+            color: 'var(--status-error)',
+            margin: 0,
+          }}
+        >
           Registration failed. The email may already be in use.
         </p>
       )}

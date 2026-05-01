@@ -1,1 +1,123 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ──────────────────────────────────────────────────────────── */
+/* Design tokens — light theme + dark accents                   */
+/* ──────────────────────────────────────────────────────────── */
+:root {
+    /* Base palette */
+    --bg-page: #F7F6F4;
+    --bg-secondary: #F2F1EE;
+    --surface: #FFFFFF;
+    --surface-hover: #FAFAF9;
+
+    /* Text colors */
+    --text-primary: #111110;
+    --text-secondary: #6B6A68;
+    --text-tertiary: #A8A7A5;
+
+    /* Borders */
+    --border-default: #E5E4E1;
+    --border-strong: #C9C8C4;
+
+    /* Accent (Indigo by default, customizable) */
+    --accent: #4F46E5;
+    --accent-hover: #4F46E5;
+    --accent-tint: rgba(79, 70, 229, 0.07);
+    --accent-border: rgba(79, 70, 229, 0.19);
+    --accent-ring: rgba(79, 70, 229, 0.13);
+
+    /* Agent (warm indigo) */
+    --agent: #6366F1;
+    --agent-tint: #EEF2FF;
+    --agent-border: #C7D2FE;
+
+    /* Status colors */
+    --status-success: #16A34A;
+    --status-success-tint: #F0FDF4;
+    --status-success-border: #DCFCE7;
+    --status-warning: #D97706;
+    --status-warning-tint: #FFFBEB;
+    --status-warning-border: #FEF3C7;
+    --status-error: #DC2626;
+    --status-error-tint: #FEF2F2;
+    --status-error-border: #FEE2E2;
+
+    /* Dark sidebar (auth page left panel) */
+    --sidebar-bg: #0F1923;
+    --sidebar-fg: rgba(255, 255, 255, 0.75);
+    --sidebar-fg-muted: rgba(255, 255, 255, 0.35);
+    --sidebar-border: rgba(255, 255, 255, 0.08);
+    --sidebar-active: rgba(255, 255, 255, 0.10);
+    --sidebar-hover: rgba(255, 255, 255, 0.06);
+
+    /* Typography */
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+@layer base {
+    body {
+        font-family: var(--font-body);
+        font-size: 14px;
+        background-color: var(--bg-page);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        margin: 0;
+        padding: 0;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-default);
+    border-radius: 4px;
+}
+
+/* Animations */
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes agent-pulse {
+    0%, 100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.3);
+    }
+}
+
+.fade-up {
+    animation: fade-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.agent-pulse {
+    animation: agent-pulse 2s ease-in-out infinite;
+}

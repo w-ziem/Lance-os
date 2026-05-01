@@ -1,8 +1,4 @@
-import { forwardRef, type InputHTMLAttributes } from 'react';
-import clsx from 'clsx';
-
-// Generic labelled input with optional error message.
-// forwardRef is required so react-hook-form's register() can attach its ref.
+import { forwardRef, useState, type InputHTMLAttributes } from 'react';
 
 interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -10,26 +6,64 @@ interface FormFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const FormField = forwardRef<HTMLInputElement, FormFieldProps>(
-  ({ label, error, id, className, ...inputProps }, ref) => {
+  ({ label, error, id, ...inputProps }, ref) => {
+    const [focus, setFocus] = useState(false);
     const inputId = id ?? inputProps.name;
+
     return (
-      <div className="flex flex-col gap-1">
-        <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+        <label
+          htmlFor={inputId}
+          style={{
+            fontSize: 12,
+            fontWeight: 500,
+            color: 'var(--text-secondary)',
+            letterSpacing: '0.01em',
+          }}
+        >
           {label}
         </label>
         <input
           id={inputId}
           ref={ref}
-          className={clsx(
-            'rounded-md border px-3 py-2 text-sm outline-none transition',
-            'border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200',
-            error && 'border-red-400 focus:border-red-500 focus:ring-red-200',
-            className,
-          )}
+          onFocus={(e) => {
+            setFocus(true);
+            inputProps.onFocus?.(e);
+          }}
+          onBlur={(e) => {
+            setFocus(false);
+            inputProps.onBlur?.(e);
+          }}
+          style={{
+            border: `1px solid ${
+              error ? 'var(--status-error)' : focus ? 'var(--accent)' : 'var(--border-default)'
+            }`,
+            borderRadius: 8,
+            padding: '10px 12px',
+            fontSize: 13,
+            fontFamily: 'var(--font-body)',
+            color: 'var(--text-primary)',
+            background: 'var(--surface)',
+            outline: 'none',
+            boxShadow: focus
+              ? `0 0 0 3px ${error ? 'var(--status-error-tint)' : 'var(--accent-ring)'}`
+              : 'none',
+            transition: 'all 0.14s ease',
+          }}
           aria-invalid={!!error}
           {...inputProps}
         />
-        {error && <p className="text-xs text-red-600">{error}</p>}
+        {error && (
+          <p
+            style={{
+              fontSize: 12,
+              color: 'var(--status-error)',
+              margin: 0,
+            }}
+          >
+            {error}
+          </p>
+        )}
       </div>
     );
   },

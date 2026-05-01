@@ -1,16 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import clsx from 'clsx';
 import { useAuth } from '@hooks/useAuth';
 import EmailForm from '@components/auth/EmailForm';
 import CodeForm from '@components/auth/CodeForm';
 import RegisterForm from '@components/auth/RegisterForm';
 import GoogleLoginButton from '@components/auth/GoogleLoginButton';
-
-// AuthPage orchestrates the login/register flow.
-// It holds two pieces of UI state:
-//   - mode: which tab is active (login | register)
-//   - pendingEmail: after email/register is submitted, switch to code screen
 
 type Mode = 'login' | 'register';
 
@@ -21,11 +15,10 @@ interface LocationState {
 export default function AuthPage() {
   const { isAuthenticated, isBootstrapping } = useAuth();
   const location = useLocation();
-
   const [mode, setMode] = useState<Mode>('login');
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [activeFeature, setActiveFeature] = useState(0);
 
-  // Reset the code step when the user switches tabs.
   useEffect(() => {
     setPendingEmail(null);
   }, [mode]);
@@ -40,88 +33,487 @@ export default function AuthPage() {
     return <Navigate to={redirectTo} replace />;
   }
 
+  const features = [
+    {
+      icon: '📁',
+      headline: 'Projects & clients',
+      body: 'Everything in one place — proposals, timelines, invoices, contacts.',
+    },
+    {
+      icon: '✓',
+      headline: 'Task automation',
+      body: 'Your agent handles the routine. You focus on the work that matters.',
+    },
+    {
+      icon: '📅',
+      headline: 'Smart scheduling',
+      body: 'Auto-schedule your week around deadlines and client commitments.',
+    },
+  ];
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
-        <h1 className="text-xl font-semibold text-gray-900">Welcome to Lance</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Sign in or create a new account.
-        </p>
-
-        {/* Tabs */}
-        <div className="mt-6 flex gap-2 border-b border-gray-200">
-          <TabButton active={mode === 'login'} onClick={() => setMode('login')}>
-            Sign in
-          </TabButton>
-          <TabButton active={mode === 'register'} onClick={() => setMode('register')}>
-            Register
-          </TabButton>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        fontFamily: 'var(--font-body)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* ─── Left: Hero Panel ─────────────────────────────────── */}
+      <div
+        style={{
+          flex: '0 0 55%',
+          background: 'var(--sidebar-bg)',
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          padding: '48px 56px',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Subtle background texture */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: -120,
+              left: -80,
+              width: 500,
+              height: 500,
+              borderRadius: '50%',
+              background:
+                'radial-gradient(circle, rgba(79, 70, 229, 0.13) 0%, transparent 70%)',
+            }}
+          />
+          <div
+            style={{
+              position: 'absolute',
+              bottom: -100,
+              right: -100,
+              width: 400,
+              height: 400,
+              borderRadius: '50%',
+              background:
+                'radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%)',
+            }}
+          />
+          <svg
+            style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              opacity: 0.04,
+            }}
+          >
+            <defs>
+              <pattern
+                id="grid"
+                width="40"
+                height="40"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 40 0 L 0 0 0 40"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="0.5"
+                />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+          </svg>
         </div>
 
-        {/* Tab content */}
-        <div className="mt-6">
-          {mode === 'login' &&
-            (pendingEmail ? (
-              <CodeForm email={pendingEmail} onBack={() => setPendingEmail(null)} />
-            ) : (
-              <EmailForm onCodeSent={setPendingEmail} />
+        {/* Top: wordmark */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: 22,
+              color: '#fff',
+              letterSpacing: '-0.04em',
+            }}
+          >
+            Lance
+          </div>
+          <div
+            style={{
+              fontSize: 11,
+              color: 'rgba(255, 255, 255, 0.35)',
+              marginTop: 2,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+            }}
+          >
+            Freelance OS
+          </div>
+        </div>
+
+        {/* Middle: headline + features */}
+        <div style={{ position: 'relative', zIndex: 1, margin: 'auto 0' }}>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 7,
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.10)',
+              borderRadius: 99,
+              padding: '5px 14px',
+              marginBottom: 24,
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: '50%',
+                background: 'var(--accent)',
+                display: 'inline-block',
+                animation: 'agent-pulse 2s ease-in-out infinite',
+              }}
+            />
+            <span
+              style={{
+                fontSize: 11,
+                color: 'rgba(255, 255, 255, 0.6)',
+                fontWeight: 500,
+                letterSpacing: '0.04em',
+              }}
+            >
+              AI agent included
+            </span>
+          </div>
+
+          <h1
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: 52,
+              lineHeight: 1.05,
+              color: '#fff',
+              margin: '0 0 20px',
+              letterSpacing: '-0.04em',
+            }}
+          >
+            Run your freelance
+            <br />
+            <span style={{ color: 'var(--accent)' }}>business on autopilot.</span>
+          </h1>
+
+          <p
+            style={{
+              fontSize: 16,
+              color: 'rgba(255, 255, 255, 0.5)',
+              lineHeight: 1.6,
+              margin: 0,
+              maxWidth: 420,
+            }}
+          >
+            Clients, projects, tasks, invoices — managed by you and your AI agent
+            working in tandem.
+          </p>
+
+          {/* Feature tabs */}
+          <div style={{ marginTop: 40, display: 'flex', flexDirection: 'column', gap: 3 }}>
+            {features.map((f, i) => (
+              <div
+                key={i}
+                onClick={() => setActiveFeature(i)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 14,
+                  padding: '14px 16px',
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                  background:
+                    activeFeature === i ? 'rgba(255, 255, 255, 0.07)' : 'transparent',
+                  border: `1px solid ${
+                    activeFeature === i ? 'rgba(255, 255, 255, 0.12)' : 'transparent'
+                  }`,
+                  transition: 'all 0.18s ease',
+                }}
+              >
+                <div
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 8,
+                    flexShrink: 0,
+                    background:
+                      activeFeature === i
+                        ? 'var(--accent)'
+                        : 'rgba(255, 255, 255, 0.06)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 16,
+                    transition: 'background 0.18s ease',
+                  }}
+                >
+                  {f.icon}
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color:
+                        activeFeature === i
+                          ? '#fff'
+                          : 'rgba(255, 255, 255, 0.5)',
+                      marginBottom: 2,
+                      transition: 'color 0.18s ease',
+                    }}
+                  >
+                    {f.headline}
+                  </div>
+                  {activeFeature === i && (
+                    <div
+                      className="fade-up"
+                      style={{
+                        fontSize: 12,
+                        color: 'rgba(255, 255, 255, 0.45)',
+                        lineHeight: 1.5,
+                      }}
+                    >
+                      {f.body}
+                    </div>
+                  )}
+                </div>
+              </div>
             ))}
+          </div>
+        </div>
 
-          {mode === 'register' &&
-            (pendingEmail ? (
-              <CodeForm email={pendingEmail} onBack={() => setPendingEmail(null)} />
-            ) : (
-              <RegisterForm onRegistered={setPendingEmail} />
+        {/* Bottom: social proof */}
+        <div
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+          }}
+        >
+          <div style={{ display: 'flex' }}>
+            {['AK', 'JL', 'MR', 'T+'].map((ini, i) => (
+              <div
+                key={i}
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: ['#4F46E5', '#7C3AED', '#0D9488', '#374151'][i],
+                  border: '2px solid #0F1923',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 10,
+                  fontWeight: 700,
+                  color: '#fff',
+                  marginLeft: i === 0 ? 0 : -8,
+                  zIndex: 4 - i,
+                }}
+              >
+                {ini}
+              </div>
             ))}
+          </div>
+          <div style={{ fontSize: 12, color: 'rgba(255, 255, 255, 0.4)' }}>
+            Trusted by{' '}
+            <span style={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600 }}>
+              2,400+
+            </span>{' '}
+            freelancers
+          </div>
         </div>
+      </div>
 
-        {/* Divider */}
-        <div className="my-6 flex items-center gap-3">
-          <div className="h-px flex-1 bg-gray-200" />
-          <span className="text-xs uppercase tracking-wide text-gray-400">or</span>
-          <div className="h-px flex-1 bg-gray-200" />
+      {/* ─── Right: Auth Form ─────────────────────────────────── */}
+      <div
+        style={{
+          flex: 1,
+          background: 'var(--surface)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '48px 56px',
+          position: 'relative',
+        }}
+      >
+        {/* Subtle top accent line */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 3,
+            background: `linear-gradient(90deg, var(--accent), var(--accent-border))`,
+          }}
+        />
+
+        <div className="fade-up" style={{ width: '100%', maxWidth: 360 }}>
+          <div style={{ marginBottom: 32 }}>
+            <h2
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize: 26,
+                color: 'var(--text-primary)',
+                margin: '0 0 6px',
+                letterSpacing: '-0.03em',
+              }}
+            >
+              {mode === 'login' ? 'Welcome back.' : 'Get started free.'}
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>
+              {mode === 'login'
+                ? 'Sign in to your workspace.'
+                : 'Create your account in seconds.'}
+            </p>
+          </div>
+
+          {/* Mode toggle */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 0,
+              background: 'var(--bg-page)',
+              borderRadius: 9,
+              padding: 3,
+              marginBottom: 28,
+            }}
+          >
+            {(['login', 'register'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                style={{
+                  flex: 1,
+                  border: 'none',
+                  cursor: 'pointer',
+                  borderRadius: 7,
+                  padding: '8px 0',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  fontFamily: 'var(--font-body)',
+                  color: mode === m ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                  background: mode === m ? 'var(--surface)' : 'transparent',
+                  boxShadow:
+                    mode === m ? '0 1px 4px rgba(0, 0, 0, 0.10)' : 'none',
+                  transition: 'all 0.18s ease',
+                }}
+              >
+                {m === 'login' ? 'Sign in' : 'Register'}
+              </button>
+            ))}
+          </div>
+
+          {/* Google button */}
+          <GoogleLoginButton />
+
+          {/* Divider */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              marginBottom: 20,
+              marginTop: 20,
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                height: 1,
+                background: 'var(--border-default)',
+              }}
+            />
+            <span
+              style={{
+                fontSize: 11,
+                color: 'var(--text-tertiary)',
+                letterSpacing: '0.06em',
+              }}
+            >
+              or
+            </span>
+            <div
+              style={{
+                flex: 1,
+                height: 1,
+                background: 'var(--border-default)',
+              }}
+            />
+          </div>
+
+          {/* Forms */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {mode === 'login' &&
+              (pendingEmail ? (
+                <CodeForm email={pendingEmail} onBack={() => setPendingEmail(null)} />
+              ) : (
+                <EmailForm onCodeSent={setPendingEmail} />
+              ))}
+
+            {mode === 'register' &&
+              (pendingEmail ? (
+                <CodeForm email={pendingEmail} onBack={() => setPendingEmail(null)} />
+              ) : (
+                <RegisterForm onRegistered={setPendingEmail} />
+              ))}
+          </div>
+
+          {/* Footer text */}
+          <p
+            style={{
+              fontSize: 12,
+              color: 'var(--text-tertiary)',
+              lineHeight: 1.6,
+              textAlign: 'center',
+              marginTop: 24,
+            }}
+          >
+            By continuing, you agree to our{' '}
+            <span style={{ color: 'var(--accent)', cursor: 'pointer' }}>Terms</span>
+            {' '}and{' '}
+            <span style={{ color: 'var(--accent)', cursor: 'pointer' }}>
+              Privacy Policy
+            </span>
+            .
+          </p>
         </div>
-
-        <GoogleLoginButton />
       </div>
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Small helpers kept in the same file because they are tightly coupled and
-// not reused elsewhere. Promote to shared components if that changes.
-// ---------------------------------------------------------------------------
-
-function TabButton({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={clsx(
-        '-mb-px border-b-2 px-3 pb-2 text-sm font-medium transition',
-        active
-          ? 'border-blue-600 text-blue-600'
-          : 'border-transparent text-gray-500 hover:text-gray-700',
-      )}
-    >
-      {children}
-    </button>
-  );
-}
-
 function FullScreenLoader() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <p className="text-sm text-gray-500">Loading…</p>
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--bg-page)',
+      }}
+    >
+      <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Loading…</p>
     </div>
   );
 }

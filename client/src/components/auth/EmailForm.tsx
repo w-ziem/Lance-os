@@ -45,7 +45,13 @@ export default function EmailForm({ onCodeSent }: Props) {
       />
 
       {sendCode.isError && (
-        <p className="text-sm text-red-600">
+        <p
+          style={{
+            fontSize: 13,
+            color: 'var(--status-error)',
+            margin: 0,
+          }}
+        >
           Could not send code. Please check the email and try again.
         </p>
       )}
