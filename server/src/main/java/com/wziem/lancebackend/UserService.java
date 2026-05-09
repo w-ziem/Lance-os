@@ -51,6 +51,7 @@ public class UserService {
         if (userRepository.existsByEmail(normalizedEmail)) {
             throw new UserAlreadyRegisteredException("User with email " + normalizedEmail + " already exists.");
         }
+        sendLoginEmail(normalizedEmail);
 
         return userRepository.save(
                 User.builder()
@@ -58,6 +59,7 @@ public class UserService {
                         .fullName(fullName)
                         .build()
         );
+
     }
 
     @Transactional
