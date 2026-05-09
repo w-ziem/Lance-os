@@ -17,7 +17,6 @@ export default function AuthPage() {
   const location = useLocation();
   const [mode, setMode] = useState<Mode>('login');
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
-  const [activeFeature, setActiveFeature] = useState(0);
 
   useEffect(() => {
     setPendingEmail(null);
@@ -252,19 +251,20 @@ export default function AuthPage() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* ─── Right: Auth Form ─────────────────────────────────── */}
-        <div
-          style={{
-            flex: 1,
-            background: 'var(--surface)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '48px 56px',
-            position: 'relative',
-          }}
-        >
+      {/* ─── Right: Auth Form ─────────────────────────────────── */}
+      <div
+        style={{
+          flex: 1,
+          background: 'var(--surface)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '48px 56px',
+          position: 'relative',
+        }}
+      >
           {/* Subtle top accent line */}
           <div
             style={{
@@ -413,7 +413,7 @@ export default function AuthPage() {
       );
 }
 
-      function FullScreenLoader() {
+function FullScreenLoader() {
   return (
       <div
         style={{

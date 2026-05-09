@@ -32,6 +32,9 @@ public class Client {
     @Column(name = "company_name")
     private String companyName;
 
+    @Column(name = "phone", length = 50)
+    private String phone;
+
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 

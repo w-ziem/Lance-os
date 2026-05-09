@@ -8,6 +8,7 @@ public record ClientDto(
         String name,
         String email,
         String companyName,
+        String phone,
         String notes,
         Instant createdAt
 ) {}
