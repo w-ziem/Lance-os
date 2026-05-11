@@ -3,6 +3,7 @@ package com.wziem.lancebackend.service;
 import com.wziem.lancebackend.api.dto.client.ClientDto;
 import com.wziem.lancebackend.api.dto.client.CreateClientRequest;
 import com.wziem.lancebackend.api.dto.client.UpdateClientRequest;
+import com.wziem.lancebackend.api.mapper.ClientMapper;
 import com.wziem.lancebackend.config.SecurityUtils;
 import com.wziem.lancebackend.model.entity.Client;
 import com.wziem.lancebackend.model.repository.ClientRepository;
@@ -19,18 +20,19 @@ import java.util.UUID;
 public class ClientService {
 
     private final ClientRepository clientRepository;
+    private final ClientMapper clientMapper;
 
     public List<ClientDto> getAllClients() {
         UUID userId = SecurityUtils.getCurrentUserId();
         return clientRepository.findAllByUserId(userId).stream()
-                .map(this::toDto)
+                .map(clientMapper::toDto)
                 .toList();
     }
 
     public ClientDto getClient(UUID id) {
         UUID userId = SecurityUtils.getCurrentUserId();
         return clientRepository.findByIdAndUserId(id, userId)
-                .map(this::toDto)
+                .map(clientMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Client not found"));
     }
 
@@ -45,7 +47,7 @@ public class ClientService {
                 .phone(request.phone())
                 .notes(request.notes())
                 .build();
-        return toDto(clientRepository.save(client));
+        return clientMapper.toDto(clientRepository.save(client));
     }
 
     @Transactional
@@ -60,7 +62,7 @@ public class ClientService {
         client.setPhone(request.phone());
         client.setNotes(request.notes());
 
-        return toDto(clientRepository.save(client));
+        return clientMapper.toDto(clientRepository.save(client));
     }
 
     @Transactional
@@ -70,17 +72,5 @@ public class ClientService {
             throw new EntityNotFoundException("Client not found");
         }
         clientRepository.deleteById(id);
-    }
-
-    private ClientDto toDto(Client client) {
-        return new ClientDto(
-                client.getId(),
-                client.getName(),
-                client.getEmail(),
-                client.getCompanyName(),
-                client.getPhone(),
-                client.getNotes(),
-                client.getCreatedAt()
-        );
     }
 }

@@ -5,6 +5,7 @@ CREATE TABLE clients
     name         VARCHAR(255)             NOT NULL,
     email        VARCHAR(255)             NOT NULL,
     company_name VARCHAR(255),
+    phone        VARCHAR(50),
     notes        TEXT,
     created_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     CONSTRAINT pk_clients PRIMARY KEY (id),
