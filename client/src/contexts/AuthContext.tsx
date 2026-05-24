@@ -19,7 +19,7 @@ interface AuthContextValue {
   accessToken: string | null;
   isAuthenticated: boolean;
   isBootstrapping: boolean;   // true while the initial silent refresh runs
-  setSession: (token: string, user?: AuthUser | null) => void;
+  setSession: (token: string) => void;
   logout: () => Promise<void>;
 }
 
@@ -48,9 +48,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const setSession = useCallback(async (token: string) => {
     accessTokenRef.current = token;
     setAccessTokenState(token);
-    const userDto = (await api.get("/auth/me")).data
-    setUser(userDto);
-    console.log(`Started session for user: ${userDto}`);
+    try {
+      const userDto = (await api.get("/auth/me")).data;
+      setUser(userDto);
+    } catch (e) {
+      console.error('[AuthContext] /auth/me failed:', e);
+    }
   }, []);
 
   const clearSession = useCallback(() => {

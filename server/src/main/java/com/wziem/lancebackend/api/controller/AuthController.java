@@ -1,20 +1,26 @@
 package com.wziem.lancebackend.api.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.wziem.lancebackend.UserService;
 import com.wziem.lancebackend.api.dto.auth.AccessTokenResponse;
-import com.wziem.lancebackend.api.dto.user.UserDto;
 import com.wziem.lancebackend.api.dto.auth.RegisterRequest;
 import com.wziem.lancebackend.api.dto.auth.RegisterResponse;
 import com.wziem.lancebackend.api.dto.auth.SendCodeRequest;
 import com.wziem.lancebackend.api.dto.auth.VerifyCodeRequest;
+import com.wziem.lancebackend.api.dto.user.UserDto;
 import com.wziem.lancebackend.model.entity.User;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -57,7 +63,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PostMapping("/me")
+    @GetMapping("/me")
     public ResponseEntity<UserDto> getMe() {
         UserDto user = userService.getMe();
         return ResponseEntity.status(HttpStatus.OK).body(user);

@@ -1,14 +1,17 @@
 package com.wziem.lancebackend.config;
 
-import com.wziem.lancebackend.exceptions.BadAuthenticationException;
-import com.wziem.lancebackend.exceptions.UserAlreadyRegisteredException;
-import com.wziem.lancebackend.exceptions.UserNotRegisteredException;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import com.wziem.lancebackend.exceptions.BadAuthenticationException;
+import com.wziem.lancebackend.exceptions.UserAlreadyRegisteredException;
+import com.wziem.lancebackend.exceptions.UserNotRegisteredException;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -52,4 +55,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException e) {
         return ResponseEntity.status(409).body("Cannot delete: record is referenced by other data." + e.getMessage());
     }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<String> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+        return ResponseEntity.status(405).body("Method not allowed: " + e.getMethod());
+    }
+
 }
