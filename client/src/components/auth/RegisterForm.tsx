@@ -1,6 +1,4 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, type RegisterFormValues } from '@lib/authSchemas';
+import { useState } from 'react';
 import { useRegister } from '@hooks/useAuthApi';
 import FormField from '@components/common/FormField';
 import SubmitButton from '@components/common/SubmitButton';
@@ -13,53 +11,67 @@ interface Props {
 }
 
 export default function RegisterForm({ onRegistered }: Props) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterFormValues>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: { email: '', fullName: '' },
-  });
+  const [data, setData] = useState({ email: '', fullName: '' });
+  const [errors, setErrors] = useState({ email: '', fullName: '' });
 
   const registerUser = useRegister();
 
-  const onSubmit = handleSubmit(async (data) => {
+  function validate() {
+    const next = { email: '', fullName: '' };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
+      next.email = 'Enter a valid email address';
+    }
+    if (!data.fullName.trim()) {
+      next.fullName = 'Full name is required';
+    }
+    setErrors(next);
+    return !next.email && !next.fullName;
+  }
+
+  function handleChange(field: keyof typeof data) {
+    return (e: React.ChangeEvent<HTMLInputElement>) =>
+      setData((prev) => ({ ...prev, [field]: e.target.value }));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!validate()) return;
     try {
-      const created = await registerUser.mutateAsync(data);
+      const created = await registerUser.mutateAsync({
+        email: data.email.trim(),
+        fullName: data.fullName.trim(),
+      });
       onRegistered(created.email);
     } catch {
       /* surfaced below */
     }
-  });
+  }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
       <FormField
         label="Full name"
+        name="fullName"
         autoComplete="name"
         placeholder="Jane Doe"
-        error={errors.fullName?.message}
-        {...register('fullName')}
+        value={data.fullName}
+        onChange={handleChange('fullName')}
+        error={errors.fullName}
       />
 
       <FormField
         label="Email"
         type="email"
+        name="email"
         autoComplete="email"
         placeholder="you@example.com"
-        error={errors.email?.message}
-        {...register('email')}
+        value={data.email}
+        onChange={handleChange('email')}
+        error={errors.email}
       />
 
       {registerUser.isError && (
-        <p
-          style={{
-            fontSize: 13,
-            color: 'var(--status-error)',
-            margin: 0,
-          }}
-        >
+        <p style={{ fontSize: 13, color: 'var(--status-error)', margin: 0 }}>
           Registration failed. The email may already be in use.
         </p>
       )}
