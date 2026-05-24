@@ -27,7 +27,7 @@ export default function CodeForm({ email, onBack }: Props) {
   async function submit(code: string) {
     try {
       const response = await verifyCode.mutateAsync({ email, code });
-      setSession(response.accessToken);
+      await setSession(response.accessToken);
     } catch {
       // error surfaced via verifyCode.isError below
     }

@@ -45,12 +45,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const accessTokenRef = useRef<string | null>(null);
 
-  const setSession = useCallback((token: string, nextUser?: AuthUser | null) => {
+  const setSession = useCallback(async (token: string) => {
     accessTokenRef.current = token;
     setAccessTokenState(token);
-    if (nextUser !== undefined) {
-      setUser(nextUser);
-    }
+    const userDto = (await api.get("/auth/me")).data
+    setUser(userDto);
+    console.log(`Started session for user: ${userDto}`);
   }, []);
 
   const clearSession = useCallback(() => {
@@ -93,8 +93,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         );
         if (!cancelled) {
           setSession(response.data.accessToken);
-          const userDto = (await axios.get<AuthUser>("/auth/me")).data
-          setUser(userDto);
         }
       } catch {
         // No valid refresh cookie → user stays logged out. Not an error.
