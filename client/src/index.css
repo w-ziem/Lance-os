@@ -5,10 +5,8 @@ html {
     scroll-behavior: smooth;
 }
 
-/* ──────────────────────────────────────────────────────────── */
-/* Design tokens — light theme + dark accents                   */
-/* ──────────────────────────────────────────────────────────── */
-:root {
+/* Design tokens — light theme + dark accents   */
+@theme {
     /* Base palette */
     --bg-page: #F7F6F4;
     --bg-secondary: #F2F1EE;
@@ -97,27 +95,14 @@ html {
         opacity: 0;
         transform: translateY(12px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-@keyframes agent-pulse {
-    0%, 100% {
-        opacity: 0.5;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 1;
-        transform: scale(1.3);
-    }
-}
 
 .fade-up {
     animation: fade-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.agent-pulse {
-    animation: agent-pulse 2s ease-in-out infinite;
 }

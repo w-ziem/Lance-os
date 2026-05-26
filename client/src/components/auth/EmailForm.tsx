@@ -16,7 +16,7 @@ export default function EmailForm({ onCodeSent }: Props) {
 
   const sendCode = useSendCode();
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SubmitEvent) {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
       setError('Enter a valid email address');
