@@ -20,7 +20,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
 import java.util.List;
 
 @Configuration
@@ -28,6 +27,7 @@ import java.util.List;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtAuthFilter jwtAuthenticationFilter;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
@@ -43,26 +43,26 @@ public class SecurityConfig {
                 // CONFIG OAuth2 authorization-code flow needs temporary server session for handshake state.
                 .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(a -> a
-                        .requestMatchers(
-                                "/auth/register",
-                                "/auth/send-code",
-                                "/auth/login-request",
-                                "/auth/verify-code",
-                                "/auth/refresh",
-                                "/auth/logout",
-                                "/actuator/health",
-                                "/actuator/health/**",
-                                "/oauth2/**"
-                        ).permitAll()
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
-                        .anyRequest().authenticated()
+                .requestMatchers(
+                        "/auth/register",
+                        "/auth/send-code",
+                        "/auth/login-request",
+                        "/auth/verify-code",
+                        "/auth/`",
+                        "/auth/logout",
+                        "/actuator/health",
+                        "/actuator/health/**",
+                        "/oauth2/**"
+                ).permitAll()
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                .anyRequest().authenticated()
                 )
                 // OAuth2
                 .oauth2Login(oauth2 -> oauth2
-                        .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorize"))
-                        .redirectionEndpoint(red -> red.baseUri("/oauth2/callback/*"))
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                        .successHandler(oAuth2AuthenticationSuccessHandler)
+                .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorize"))
+                .redirectionEndpoint(red -> red.baseUri("/oauth2/callback/*"))
+                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                .successHandler(oAuth2AuthenticationSuccessHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(c -> {

@@ -11,34 +11,43 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenCookieService {
+
+    // Two paths: /auth for direct access (Postman), /api/auth for frontend (Vite proxy strips /api).
+    // A single cookie can only carry one Path, so we issue one cookie per path.
+    private static final List<String> COOKIE_PATHS = List.of("/auth", "/api/auth");
+
     private final RefreshCookieProperties refreshCookieProperties;
 
     public void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-        // CONFIG refresh token cookie policy comes from app.auth.refresh-cookie.*
-        ResponseCookie cookie = ResponseCookie.from(refreshCookieProperties.getName(), refreshToken)
-                .httpOnly(true)
-                .secure(refreshCookieProperties.isSecure())
-                .path(refreshCookieProperties.getPath())
-                .sameSite(refreshCookieProperties.getSameSite())
-                .maxAge(Duration.ofSeconds(refreshCookieProperties.getMaxAgeSeconds()))
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        for (String path : COOKIE_PATHS) {
+            ResponseCookie cookie = ResponseCookie.from(refreshCookieProperties.getName(), refreshToken)
+                    .httpOnly(true)
+                    .secure(refreshCookieProperties.isSecure())
+                    .path(path)
+                    .sameSite(refreshCookieProperties.getSameSite())
+                    .maxAge(Duration.ofSeconds(refreshCookieProperties.getMaxAgeSeconds()))
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        }
     }
 
     public void clearRefreshTokenCookie(HttpServletResponse response) {
-        ResponseCookie cookie = ResponseCookie.from(refreshCookieProperties.getName(), "")
-                .httpOnly(true)
-                .secure(refreshCookieProperties.isSecure())
-                .path(refreshCookieProperties.getPath())
-                .sameSite(refreshCookieProperties.getSameSite())
-                .maxAge(Duration.ZERO)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        for (String path : COOKIE_PATHS) {
+            ResponseCookie cookie = ResponseCookie.from(refreshCookieProperties.getName(), "")
+                    .httpOnly(true)
+                    .secure(refreshCookieProperties.isSecure())
+                    .path(path)
+                    .sameSite(refreshCookieProperties.getSameSite())
+                    .maxAge(Duration.ZERO)
+                    .build();
+            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        }
     }
 
     public Optional<String> extractRefreshToken(HttpServletRequest request) {
@@ -53,4 +62,3 @@ public class RefreshTokenCookieService {
                 .findFirst();
     }
 }
-
