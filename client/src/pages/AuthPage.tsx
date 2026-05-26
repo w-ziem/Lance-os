@@ -117,15 +117,7 @@ export default function AuthPage() {
 
         {/* Top: wordmark */}
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 800,
-              fontSize: 22,
-              color: '#fff',
-              letterSpacing: '-0.04em',
-            }}
-          >
+          <div className="font-display font-extrabold text-[22px] text-white tracking-[-0.04em]">
             Lance
           </div>
           <div
@@ -265,166 +257,166 @@ export default function AuthPage() {
           position: 'relative',
         }}
       >
-          {/* Subtle top accent line */}
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 3,
-              background: `linear-gradient(90deg, var(--accent), var(--accent-border))`,
-            }}
-          />
+        {/* Subtle top accent line */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 3,
+            background: `linear-gradient(90deg, var(--accent), var(--accent-border))`,
+          }}
+        />
 
-          <div className="fade-up" style={{ width: '100%', maxWidth: 360 }}>
-            <div style={{ marginBottom: 32 }}>
-              <h2
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 700,
-                  fontSize: 26,
-                  color: 'var(--text-primary)',
-                  margin: '0 0 6px',
-                  letterSpacing: '-0.03em',
-                }}
-              >
-                {mode === 'login' ? 'Welcome back.' : 'Get started free.'}
-              </h2>
-              <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>
-                {mode === 'login'
-                  ? 'Sign in to your workspace.'
-                  : 'Create your account in seconds.'}
-              </p>
-            </div>
-
-            {/* Mode toggle */}
-            <div
+        <div className="fade-up" style={{ width: '100%', maxWidth: 360 }}>
+          <div style={{ marginBottom: 32 }}>
+            <h2
               style={{
-                display: 'flex',
-                gap: 0,
-                background: 'var(--bg-page)',
-                borderRadius: 9,
-                padding: 3,
-                marginBottom: 28,
+                fontFamily: 'var(--font-display)',
+                fontWeight: 700,
+                fontSize: 26,
+                color: 'var(--text-primary)',
+                margin: '0 0 6px',
+                letterSpacing: '-0.03em',
               }}
             >
-              {(['login', 'register'] as const).map((m) => (
-                <button
-                  key={m}
-                  onClick={() => setMode(m)}
-                  style={{
-                    flex: 1,
-                    border: 'none',
-                    cursor: 'pointer',
-                    borderRadius: 7,
-                    padding: '8px 0',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    fontFamily: 'var(--font-body)',
-                    color: mode === m ? 'var(--text-primary)' : 'var(--text-tertiary)',
-                    background: mode === m ? 'var(--surface)' : 'transparent',
-                    boxShadow:
-                      mode === m ? '0 1px 4px rgba(0, 0, 0, 0.10)' : 'none',
-                    transition: 'all 0.18s ease',
-                  }}
-                >
-                  {m === 'login' ? 'Sign in' : 'Register'}
-                </button>
-              ))}
-            </div>
-
-            {/* Google button */}
-            <GoogleLoginButton />
-
-            {/* Divider */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-                marginBottom: 20,
-                marginTop: 20,
-              }}
-            >
-              <div
-                style={{
-                  flex: 1,
-                  height: 1,
-                  background: 'var(--border-default)',
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 11,
-                  color: 'var(--text-tertiary)',
-                  letterSpacing: '0.06em',
-                }}
-              >
-                or
-              </span>
-              <div
-                style={{
-                  flex: 1,
-                  height: 1,
-                  background: 'var(--border-default)',
-                }}
-              />
-            </div>
-
-            {/* Forms */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              {mode === 'login' &&
-                (pendingEmail ? (
-                  <CodeForm email={pendingEmail} onBack={() => setPendingEmail(null)} />
-                ) : (
-                  <EmailForm onCodeSent={setPendingEmail} />
-                ))}
-
-              {mode === 'register' &&
-                (pendingEmail ? (
-                  <CodeForm email={pendingEmail} onBack={() => setPendingEmail(null)} />
-                ) : (
-                  <RegisterForm onRegistered={setPendingEmail} />
-                ))}
-            </div>
-
-            {/* Footer text */}
-            <p
-              style={{
-                fontSize: 12,
-                color: 'var(--text-tertiary)',
-                lineHeight: 1.6,
-                textAlign: 'center',
-                marginTop: 24,
-              }}
-            >
-              By continuing, you agree to our{' '}
-              <span style={{ color: 'var(--accent)', cursor: 'pointer' }}>Terms</span>
-              {' '}and{' '}
-              <span style={{ color: 'var(--accent)', cursor: 'pointer' }}>
-                Privacy Policy
-              </span>
-              .
+              {mode === 'login' ? 'Welcome back.' : 'Get started free.'}
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: 0 }}>
+              {mode === 'login'
+                ? 'Sign in to your workspace.'
+                : 'Create your account in seconds.'}
             </p>
           </div>
+
+          {/* Mode toggle */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 0,
+              background: 'var(--bg-page)',
+              borderRadius: 9,
+              padding: 3,
+              marginBottom: 28,
+            }}
+          >
+            {(['login', 'register'] as const).map((m) => (
+              <button
+                key={m}
+                onClick={() => setMode(m)}
+                style={{
+                  flex: 1,
+                  border: 'none',
+                  cursor: 'pointer',
+                  borderRadius: 7,
+                  padding: '8px 0',
+                  fontSize: 13,
+                  fontWeight: 500,
+                  fontFamily: 'var(--font-body)',
+                  color: mode === m ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                  background: mode === m ? 'var(--surface)' : 'transparent',
+                  boxShadow:
+                    mode === m ? '0 1px 4px rgba(0, 0, 0, 0.10)' : 'none',
+                  transition: 'all 0.18s ease',
+                }}
+              >
+                {m === 'login' ? 'Sign in' : 'Register'}
+              </button>
+            ))}
+          </div>
+
+          {/* Google button */}
+          <GoogleLoginButton />
+
+          {/* Divider */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              marginBottom: 20,
+              marginTop: 20,
+            }}
+          >
+            <div
+              style={{
+                flex: 1,
+                height: 1,
+                background: 'var(--border-default)',
+              }}
+            />
+            <span
+              style={{
+                fontSize: 11,
+                color: 'var(--text-tertiary)',
+                letterSpacing: '0.06em',
+              }}
+            >
+              or
+            </span>
+            <div
+              style={{
+                flex: 1,
+                height: 1,
+                background: 'var(--border-default)',
+              }}
+            />
+          </div>
+
+          {/* Forms */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {mode === 'login' &&
+              (pendingEmail ? (
+                <CodeForm email={pendingEmail} onBack={() => setPendingEmail(null)} />
+              ) : (
+                <EmailForm onCodeSent={setPendingEmail} />
+              ))}
+
+            {mode === 'register' &&
+              (pendingEmail ? (
+                <CodeForm email={pendingEmail} onBack={() => setPendingEmail(null)} />
+              ) : (
+                <RegisterForm onRegistered={setPendingEmail} />
+              ))}
+          </div>
+
+          {/* Footer text */}
+          <p
+            style={{
+              fontSize: 12,
+              color: 'var(--text-tertiary)',
+              lineHeight: 1.6,
+              textAlign: 'center',
+              marginTop: 24,
+            }}
+          >
+            By continuing, you agree to our{' '}
+            <span style={{ color: 'var(--accent)', cursor: 'pointer' }}>Terms</span>
+            {' '}and{' '}
+            <span style={{ color: 'var(--accent)', cursor: 'pointer' }}>
+              Privacy Policy
+            </span>
+            .
+          </p>
         </div>
       </div>
-      );
+    </div>
+  );
 }
 
 function FullScreenLoader() {
   return (
-      <div
-        style={{
-          display: 'flex',
-          minHeight: '100vh',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--bg-page)',
-        }}
-      >
-        <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Loading…</p>
-      </div>
-      );
+    <div
+      style={{
+        display: 'flex',
+        minHeight: '100vh',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'var(--bg-page)',
+      }}
+    >
+      <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Loading…</p>
+    </div>
+  );
 }
