@@ -1,0 +1,22 @@
+services:
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile.dev
+    container_name: lance-frontend-dev
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      # Mount source so Vite sees file changes
+      - ./client:/app
+      # Isolated node_modules so host and container don't conflict
+      - /app/node_modules
+    environment:
+      # Inside Docker the backend is reachable by service name, not localhost
+      - VITE_BACKEND_URL=http://backend:8080
+    ports:
+      - "3000:3000"
+    networks:
+      - lance-network

@@ -11,15 +11,22 @@ export default defineConfig({
   // This allows frontend to call /api/* and have it proxied to Spring Boot
   server: {
     port: 3000,
+    // Required when running inside Docker — binds to all interfaces, not just loopback
+    host: '0.0.0.0',
+    watch: {
+      // Windows/WSL2 Docker volumes don't support inotify; polling is the fallback
+      usePolling: !!process.env.VITE_BACKEND_URL,
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:8080',
+        // VITE_BACKEND_URL=http://backend:8080 when running in Docker; falls back to localhost for npm run dev on host
+        target: process.env.VITE_BACKEND_URL ?? 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
       '/oauth2': {
-        target: 'http://localhost:8080',
+        target: process.env.VITE_BACKEND_URL ?? 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
       },
