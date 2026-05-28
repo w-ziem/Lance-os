@@ -1,6 +1,7 @@
 import { useCreateClient, useUpdateClient } from '@/hooks/useClient';
 import type { ClientDto } from '@/types/client';
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import FormField from '../common/FormField';
 import SubmitButton from '../common/SubmitButton';
 
@@ -19,7 +20,6 @@ function ClientForm({ client, onSuccess }: ClientFormProps) {
     });
     const [errors, setErrors] = useState({ name: '', email: '' });
 
-    //hooks outside ternary
     const createMutation = useCreateClient();
     const updateMutation = useUpdateClient(client?.id ?? '');
     const mutation = client?.id ? updateMutation : createMutation;
@@ -29,7 +29,7 @@ function ClientForm({ client, onSuccess }: ClientFormProps) {
             setData(prev => ({ ...prev, [field]: e.target.value }));
     }
 
-    const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const newErrors = { name: '', email: '' };
@@ -40,80 +40,33 @@ function ClientForm({ client, onSuccess }: ClientFormProps) {
 
         try {
             await mutation.mutateAsync(data);
+            toast.success(client ? 'Client updated.' : 'Client added.');
             onSuccess();
         } catch {
-            // error is stored on mutation.isError / mutation.error by react-query
+            toast.error('Could not save. Try again.');
         }
     }
 
     return (
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <FormField
-                label="Name *"
-                name="name"
-                value={data.name}
-                onChange={handleChange('name')}
-                placeholder="John Smith"
-                error={errors.name}
-            />
-            <FormField
-                label="Email *"
-                name="email"
-                type="email"
-                value={data.email}
-                onChange={handleChange('email')}
-                placeholder="jan@example.com"
-                error={errors.email}
-            />
-            <FormField
-                label="Company"
-                name="companyName"
-                value={data.companyName}
-                onChange={handleChange('companyName')}
-                placeholder="Acme Sp. z o.o."
-            />
-            <FormField
-                label="Phone"
-                name="phone"
-                value={data.phone}
-                onChange={handleChange('phone')}
-                placeholder="+48 600 000 000"
-            />
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <FormField label="Name *" name="name" value={data.name} onChange={handleChange('name')} placeholder="John Smith" error={errors.name} />
+            <FormField label="Email *" name="email" type="email" value={data.email} onChange={handleChange('email')} placeholder="jan@example.com" error={errors.email} />
+            <FormField label="Company" name="companyName" value={data.companyName} onChange={handleChange('companyName')} placeholder="Acme Sp. z o.o." />
+            <FormField label="Phone" name="phone" value={data.phone} onChange={handleChange('phone')} placeholder="+48 600 000 000" />
 
-            {/* FormField wraps <input> only, so textarea is styled manually to match */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <label
-                    htmlFor="notes"
-                    style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', letterSpacing: '0.01em' }}
-                >
+            <div className="flex flex-col gap-[5px]">
+                <label htmlFor="notes" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">
                     Notes
                 </label>
                 <textarea
                     id="notes"
                     value={data.notes}
                     onChange={handleChange('notes')}
-                    placeholder="Dodatkowe informacje..."
+                    placeholder="Additional notes..."
                     rows={4}
-                    style={{
-                        border: '1px solid var(--border-default)',
-                        borderRadius: 8,
-                        padding: '10px 12px',
-                        fontSize: 13,
-                        fontFamily: 'var(--font-body)',
-                        color: 'var(--text-primary)',
-                        background: 'var(--surface)',
-                        outline: 'none',
-                        resize: 'vertical',
-                        transition: 'border 0.14s ease',
-                    }}
+                    className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none resize-y transition-[border,box-shadow] duration-[140ms] focus:border-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.13)]"
                 />
             </div>
-
-            {mutation.isError && (
-                <p style={{ fontSize: 12, color: 'var(--status-error)', margin: 0 }}>
-                    Could not save. Try again.
-                </p>
-            )}
 
             <SubmitButton isLoading={mutation.isPending}>
                 {client ? 'Update client' : 'Save client'}

@@ -13,13 +13,11 @@ export default function ClientsPage() {
   const [search, setSearch] = useState('');
 
   const { data: clients, isLoading, isError } = useClientsQuery();
-
   const deleteMutation = useDeleteClient();
 
   function openCreate() { setEditingClient(null); setDrawerOpen(true); }
   function openEdit(client: ClientDto) { setEditingClient(client); setDrawerOpen(true); }
   function closeDrawer() { setDrawerOpen(false); }
-
 
   const filtered = (clients ?? []).filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -27,33 +25,24 @@ export default function ClientsPage() {
   );
 
   return (
-    <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
+    <div className="flex h-full overflow-hidden">
 
-      {/* ── Left: scrollable content area ── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '32px 36px' }}>
+      {/* ── Left: scrollable content ── */}
+      <div className="flex-1 overflow-y-auto px-9 py-8">
 
         {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 style={{
-              fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 25,
-              color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.03em',
-            }}>
+            <h1 className="font-display font-bold text-[25px] text-text-primary m-0 tracking-[-0.03em]">
               Clients
             </h1>
-            <p style={{ fontSize: 12, color: 'var(--text-tertiary)', margin: '4px 0 0' }}>
+            <p className="text-[12px] text-text-tertiary mt-1">
               {filtered.length} total
             </p>
           </div>
           <button
             onClick={openCreate}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              background: 'var(--accent)', color: '#fff', border: 'none',
-              borderRadius: 8, padding: '9px 14px', fontSize: 13, fontWeight: 600,
-              fontFamily: 'var(--font-body)', cursor: 'pointer',
-              boxShadow: 'rgba(79,70,229,0.27) 0 2px 12px',
-            }}
+            className="flex items-center gap-1.5 bg-[var(--accent)] text-white border-none rounded-lg px-3.5 py-[9px] text-[13px] font-semibold font-body cursor-pointer shadow-[rgba(79,70,229,0.27)_0_2px_12px]"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -63,10 +52,10 @@ export default function ClientsPage() {
         </div>
 
         {/* Search */}
-        <div style={{ position: 'relative', width: 260, marginBottom: 20 }}>
+        <div className="relative w-[260px] mb-5">
           <svg
             width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-            style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)', pointerEvents: 'none' }}
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
           >
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -74,46 +63,27 @@ export default function ClientsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search clients…"
-            style={{
-              width: '100%', paddingLeft: 32, paddingRight: 12, paddingTop: 9, paddingBottom: 9,
-              border: '1px solid var(--border-default)', borderRadius: 7, fontSize: 13,
-              fontFamily: 'var(--font-body)', color: 'var(--text-primary)',
-              background: 'var(--surface)', outline: 'none',
-            }}
+            className="w-full pl-8 pr-3 py-[9px] border border-border-default rounded-[7px] text-[13px] font-body text-text-primary bg-surface outline-none"
           />
         </div>
 
         {/* States */}
-        {isLoading && (
-          <p style={{ color: 'var(--text-tertiary)', fontSize: 13 }}>Loading…</p>
-        )}
-        {isError && (
-          <p style={{ color: 'var(--status-error)', fontSize: 13 }}>Failed to load clients.</p>
-        )}
+        {isLoading && <p className="text-[13px] text-text-tertiary">Loading…</p>}
+        {isError && <p className="text-[13px] text-status-error">Failed to load clients.</p>}
 
         {/* Table */}
         {!isLoading && !isError && (
           filtered.length === 0 ? (
-            <p style={{ color: 'var(--text-tertiary)', fontSize: 13, marginTop: 40, textAlign: 'center' }}>
+            <p className="text-[13px] text-text-tertiary mt-10 text-center">
               {search ? 'No clients match your search.' : 'No clients yet. Add your first one.'}
             </p>
           ) : (
-            <div style={{
-              background: 'var(--surface)',
-              border: '1px solid var(--border-default)',
-              borderRadius: 10,
-              overflow: 'hidden',
-            }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="bg-surface border border-border-default rounded-[10px] overflow-hidden">
+              <table className="w-full border-collapse">
                 <thead>
-                  <tr style={{ background: 'var(--bg-secondary)' }}>
+                  <tr className="bg-bg-secondary">
                     {['Client', 'Company', 'Email', 'Phone', 'Created', ''].map(label => (
-                      <th key={label} style={{
-                        padding: '10px 16px', textAlign: 'left', fontSize: 11,
-                        fontWeight: 600, color: 'var(--text-secondary)',
-                        letterSpacing: '0.04em', textTransform: 'uppercase',
-                        borderBottom: '1px solid var(--border-default)',
-                      }}>
+                      <th key={label} className="px-4 py-[10px] text-left text-[11px] font-semibold text-text-secondary tracking-[0.04em] uppercase border-b border-border-default">
                         {label}
                       </th>
                     ))}

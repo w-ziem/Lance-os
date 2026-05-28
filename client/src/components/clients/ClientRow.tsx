@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import type { ClientDto } from '@/types/client';
 
 interface ClientRowProps {
@@ -13,69 +12,50 @@ function avatarUrl(name: string) {
 }
 
 export default function ClientRow({ client, onEdit, onDelete, last }: ClientRowProps) {
-    const [hovered, setHovered] = useState(false);
-
     const formatted = new Date(client.createdAt).toLocaleDateString('en-GB', {
         day: 'numeric', month: 'short', year: 'numeric',
     });
 
-    // Shared cell style — bottom border omitted on last row so it doesn't double with table border
-    const cell: React.CSSProperties = {
-        padding: '12px 16px',
-        fontSize: 13,
-        color: 'var(--text-primary)',
-        borderBottom: last ? 'none' : '1px solid var(--border-default)',
-        verticalAlign: 'middle',
-        cursor: 'pointer',
-    };
-    const muted: React.CSSProperties = { ...cell, color: 'var(--text-secondary)' };
+    const border = last ? '' : 'border-b border-border-default';
+    const cell = `px-4 py-3 text-[13px] text-text-primary align-middle cursor-pointer ${border}`;
+    const muted = `px-4 py-3 text-[13px] text-text-secondary align-middle cursor-pointer ${border}`;
 
     return (
-        <tr
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-            onClick={onEdit}
-            style={{ background: hovered ? 'var(--surface-hover)' : 'transparent', transition: 'background 0.12s ease' }}
-        >
-            {/* Client: avatar + name + optional subtitle */}
-            <td style={cell}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        // group — pozwala dzieciom reagować na hover rodzica przez group-hover:
+        <tr onClick={onEdit} className="group hover:bg-surface-hover transition-colors">
+
+            <td className={cell}>
+                <div className="flex items-center gap-2.5">
                     <img
                         src={avatarUrl(client.name)}
                         alt={client.name}
                         width={28}
                         height={28}
-                        style={{ borderRadius: '50%', flexShrink: 0 }}
+                        className="rounded-full shrink-0"
                     />
                     <div>
-                        <div style={{ fontWeight: 500 }}>{client.name}</div>
+                        <div className="font-medium">{client.name}</div>
                         {client.companyName && (
-                            <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 1 }}>
-                                {client.companyName}
-                            </div>
+                            <div className="text-[11px] text-text-tertiary mt-px">{client.companyName}</div>
                         )}
                     </div>
                 </div>
             </td>
 
-            <td style={muted}>{client.companyName || '—'}</td>
-            <td style={muted}>{client.email}</td>
-            <td style={muted}>{client.phone || '—'}</td>
-            <td style={muted}>{formatted}</td>
+            <td className={muted}>{client.companyName || '—'}</td>
+            <td className={muted}>{client.email}</td>
+            <td className={muted}>{client.phone || '—'}</td>
+            <td className={muted}>{formatted}</td>
 
-            {/* Actions: pencil + trash, visible only on hover */}
-            <td style={{ ...cell, width: 64 }}>
-                {/*
-                  stopPropagation here: klikając ikonkę NIE chcemy wywołać onEdit z <tr>.
-                  Bez tego klik trash → onDelete() + onEdit() jednocześnie.
-                */}
+            <td className={`${border} px-4 py-3 w-16`}>
+                {/* stopPropagation — klik ikonki nie bubbluje do onClick na <tr> */}
                 <div
                     onClick={e => e.stopPropagation()}
-                    style={{ display: 'flex', gap: 4, opacity: hovered ? 1 : 0, transition: 'opacity 0.12s ease' }}
+                    className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                     <button
                         onClick={onEdit}
-                        style={{ background: 'none', border: 'none', padding: 4, cursor: 'pointer', color: 'var(--text-secondary)', borderRadius: 4 }}
+                        className="p-1 rounded bg-transparent border-none cursor-pointer text-text-secondary hover:text-text-primary"
                     >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -84,7 +64,7 @@ export default function ClientRow({ client, onEdit, onDelete, last }: ClientRowP
                     </button>
                     <button
                         onClick={onDelete}
-                        style={{ background: 'none', border: 'none', padding: 4, cursor: 'pointer', color: 'var(--status-error)', borderRadius: 4 }}
+                        className="p-1 rounded bg-transparent border-none cursor-pointer text-status-error"
                     >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="3 6 5 6 21 6" />

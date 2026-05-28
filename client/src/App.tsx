@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'react-hot-toast';
 
 import { AuthProvider } from '@contexts/AuthContext';
 import ProtectedRoute from '@components/common/ProtectedRoute';
@@ -32,6 +33,21 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                fontFamily: 'var(--font-body)',
+                fontSize: 13,
+                background: 'var(--surface)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-default)',
+                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+              },
+              success: { iconTheme: { primary: 'var(--status-success)', secondary: '#fff' } },
+              error: { iconTheme: { primary: 'var(--status-error)', secondary: '#fff' } },
+            }}
+          />
           <Routes>
             {/* Public */}
             <Route path="/auth" element={<AuthPage />} />
@@ -41,10 +57,10 @@ export default function App() {
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
                 <Route path="/dashboard" element={<DashboardPage />} />
-                <Route path="/clients"   element={<ClientsPage />} />
-                <Route path="/projects"  element={<ProjectsPage />} />
-                <Route path="/tasks"     element={<TasksPage />} />
-                <Route path="/calendar"  element={<CalendarPage />} />
+                <Route path="/clients" element={<ClientsPage />} />
+                <Route path="/projects" element={<ProjectsPage />} />
+                <Route path="/tasks" element={<TasksPage />} />
+                <Route path="/calendar" element={<CalendarPage />} />
               </Route>
             </Route>
 
