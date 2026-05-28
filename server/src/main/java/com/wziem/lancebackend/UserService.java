@@ -1,6 +1,5 @@
 package com.wziem.lancebackend;
 
-
 import com.wziem.lancebackend.api.dto.auth.RegisterRequest;
 import com.wziem.lancebackend.api.dto.user.UserDto;
 import com.wziem.lancebackend.config.SecurityUtils;
@@ -35,6 +34,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final LoginCodeRepository loginCodeRepository;
     private final PasswordEncoder passwordEncoder;
@@ -53,15 +53,17 @@ public class UserService {
         if (userRepository.existsByEmail(normalizedEmail)) {
             throw new UserAlreadyRegisteredException("User with email " + normalizedEmail + " already exists.");
         }
-        sendLoginEmail(normalizedEmail);
 
-        return userRepository.save(
+        User user = userRepository.save(
                 User.builder()
                         .email(normalizedEmail)
                         .fullName(fullName)
                         .build()
         );
 
+        sendLoginEmail(normalizedEmail);
+
+        return user;
     }
 
     @Transactional

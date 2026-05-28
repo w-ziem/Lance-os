@@ -2,6 +2,7 @@ FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
-# Source is mounted as a volume at runtime — COPY . . is intentionally omitted
+# Source is mounted as volumes at runtime — not copied here
 EXPOSE 3000
-CMD ["npm", "run", "dev"]
+ENV CHOKIDAR_USEPOLLING=true
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
