@@ -5,6 +5,8 @@ import ProgressBar from '@/components/common/ProgressBar';
 interface ProjectCardProps {
     project: ProjectDto;
     clientName?: string;
+    taskCount?: number;
+    doneCount?: number;
     onClick: () => void;
 }
 
@@ -20,9 +22,10 @@ function formatDeadline(iso?: string) {
     return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
-export default function ProjectCard({ project, clientName, onClick }: ProjectCardProps) {
-    // Placeholder progress until we have per-task aggregation — keeps the layout honest.
-    const progress = project.status === 'COMPLETED' ? 100 : 0;
+export default function ProjectCard({ project, clientName, taskCount = 0, doneCount = 0, onClick }: ProjectCardProps) {
+    const progress = taskCount > 0
+        ? Math.round((doneCount / taskCount) * 100)
+        : project.status === 'COMPLETED' ? 100 : 0;
 
     return (
         <div
@@ -41,7 +44,9 @@ export default function ProjectCard({ project, clientName, onClick }: ProjectCar
             <ProgressBar value={progress} colorVar={COLOR_BY_STATUS[project.status]} />
 
             <div className="flex justify-between mt-[7px]">
-                <div className="text-[11px] text-(--text-tertiary)">{progress}%</div>
+                <div className="text-[11px] text-(--text-tertiary)">
+                    {taskCount > 0 ? `${doneCount}/${taskCount} tasks` : `${progress}%`}
+                </div>
                 <div className="text-[11px] text-(--text-tertiary) flex items-center gap-1">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <circle cx="12" cy="12" r="10" />

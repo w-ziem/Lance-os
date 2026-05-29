@@ -1,7 +1,17 @@
-import { useEffect, useMemo, useState } from 'react';
-import { useTasksQuery, useDeleteTask } from '@/hooks/useTask';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+    DndContext,
+    DragOverlay,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    useDroppable,
+    useDraggable,
+    type DragEndEvent,
+} from '@dnd-kit/core';
+import { useTasksQuery, useDeleteTask, useUpdateAnyTaskStatus } from '@/hooks/useTask';
 import { useProjectsQuery } from '@/hooks/useProject';
-import type { TaskDto } from '@/types/task';
+import type { TaskDto, TaskStatus } from '@/types/task';
 import SlideDrawer from '@/components/common/SlideDrawer';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import TaskCard from '@/components/tasks/TaskCard';
@@ -9,37 +19,130 @@ import TaskColumn from '@/components/tasks/TaskColumn';
 import TaskForm from '@/components/tasks/TaskForm';
 import TaskDetailDrawer from '@/components/tasks/TaskDetailDrawer';
 
-const COLUMNS = [
-    { key: 'TODO' as const,        title: 'To Do',       dotColor: 'bg-[var(--text-tertiary)]', muted: false },
-    { key: 'IN_PROGRESS' as const, title: 'In Progress', dotColor: 'bg-[var(--accent)]', muted: false },
-    { key: 'DONE' as const,        title: 'Done',        dotColor: 'bg-(--status-success)', muted: true },
+const COLUMNS: { key: TaskStatus; title: string; dotColor: string; muted: boolean }[] = [
+    { key: 'TODO',        title: 'To Do',       dotColor: 'bg-[var(--text-tertiary)]', muted: false },
+    { key: 'IN_PROGRESS', title: 'In Progress', dotColor: 'bg-[var(--accent)]',        muted: false },
+    { key: 'DONE',        title: 'Done',         dotColor: 'bg-(--status-success)',      muted: true },
 ];
 
+// ── Droppable column wrapper ──────────────────────────────────────────────────
+function DroppableColumn({ id, isOver, children }: { id: string; isOver: boolean; children: React.ReactNode }) {
+    const { setNodeRef } = useDroppable({ id });
+    return (
+        <div
+            ref={setNodeRef}
+            className={`min-h-[120px] rounded-lg p-1.5 -m-1.5 transition-colors duration-150 ${isOver ? 'bg-[var(--accent-tint)]' : ''}`}
+        >
+            {children}
+        </div>
+    );
+}
+
+// ── Draggable card wrapper ────────────────────────────────────────────────────
+function DraggableCard({
+    task,
+    projectName,
+    muted,
+    onEdit,
+    onDelete,
+    onDetail,
+}: {
+    task: TaskDto;
+    projectName?: string;
+    muted?: boolean;
+    onEdit: () => void;
+    onDelete: () => void;
+    onDetail: () => void;
+}) {
+    const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: task.id });
+
+    return (
+        <div
+            ref={setNodeRef}
+            {...attributes}
+            {...listeners}
+            className={`relative group transition-opacity duration-100 ${isDragging ? 'opacity-40' : ''}`}
+        >
+            <TaskCard task={task} projectName={projectName} muted={muted} onClick={onDetail} />
+            <div
+                onClick={e => e.stopPropagation()}
+                className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+                <button
+                    onClick={onEdit}
+                    className="p-1 rounded bg-transparent border-none cursor-pointer text-(--text-secondary) hover:text-(--text-primary)"
+                    aria-label="Edit task"
+                >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                </button>
+                <button
+                    onClick={onDelete}
+                    className="p-1 rounded bg-transparent border-none cursor-pointer text-(--status-error)"
+                    aria-label="Delete task"
+                >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6l-1 14H6L5 6" />
+                        <path d="M10 11v6M14 11v6" />
+                        <path d="M9 6V4h6v2" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// ── Page ─────────────────────────────────────────────────────────────────────
 export default function TasksPage() {
     const [editDrawerOpen, setEditDrawerOpen] = useState(false);
     const [editing, setEditing] = useState<TaskDto | null>(null);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [toDelete, setToDelete] = useState<TaskDto | null>(null);
+    const [projectFilter, setProjectFilter] = useState<string | null>(null);
+    const [activeId, setActiveId] = useState<string | null>(null);
+    const [overId, setOverId] = useState<string | null>(null);
 
     const { data: tasks, isLoading, isError } = useTasksQuery();
     const { data: projects = [] } = useProjectsQuery();
     const deleteMutation = useDeleteTask();
+    const dndStatusMutation = useUpdateAnyTaskStatus();
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+    );
 
     const projectNameById = useMemo(
         () => Object.fromEntries(projects.map(p => [p.id, p.name])),
         [projects],
     );
 
+    const filteredTasks = useMemo(
+        () => (tasks ?? []).filter(t => projectFilter === null || t.projectId === projectFilter),
+        [tasks, projectFilter],
+    );
+
     const grouped = useMemo(() => {
-        const buckets: Record<TaskDto['status'], TaskDto[]> = { TODO: [], IN_PROGRESS: [], DONE: [] };
-        (tasks ?? []).forEach(t => { buckets[t.status].push(t); });
+        const buckets: Record<TaskStatus, TaskDto[]> = { TODO: [], IN_PROGRESS: [], DONE: [] };
+        filteredTasks.forEach(t => { buckets[t.status].push(t); });
         return buckets;
-    }, [tasks]);
+    }, [filteredTasks]);
 
     const selected = useMemo(
         () => (selectedId ? (tasks ?? []).find(t => t.id === selectedId) ?? null : null),
         [tasks, selectedId],
     );
+
+    const activeTask = useMemo(
+        () => (activeId ? (tasks ?? []).find(t => t.id === activeId) ?? null : null),
+        [tasks, activeId],
+    );
+
+    // Preserve last selected task so the detail drawer can animate out with content
+    const lastSelectedRef = useRef<TaskDto | null>(null);
+    if (selected) lastSelectedRef.current = selected;
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -51,6 +154,18 @@ export default function TasksPage() {
     function closeEditDrawer() { setEditDrawerOpen(false); }
     function openDetail(task: TaskDto) { setSelectedId(task.id); setEditDrawerOpen(false); }
     function closeDetail() { setSelectedId(null); }
+
+    function handleDragEnd(event: DragEndEvent) {
+        const { active, over } = event;
+        setActiveId(null);
+        setOverId(null);
+        if (!over) return;
+        const task = (tasks ?? []).find(t => t.id === active.id);
+        if (!task) return;
+        const newStatus = String(over.id) as TaskStatus;
+        if (task.status === newStatus) return;
+        dndStatusMutation.mutate({ id: task.id, status: newStatus });
+    }
 
     return (
         <div className="flex h-full overflow-hidden">
@@ -73,66 +188,90 @@ export default function TasksPage() {
                     </button>
                 </div>
 
+                {/* Project filter pills */}
+                {projects.length > 0 && (
+                    <div className="flex gap-1.5 mb-5 flex-wrap">
+                        <button
+                            onClick={() => setProjectFilter(null)}
+                            className={`px-3.5 py-[5px] rounded-full text-[12px] font-medium font-body cursor-pointer border ${
+                                projectFilter === null
+                                    ? 'border-[var(--accent)] bg-[var(--accent-tint)] text-[var(--accent)]'
+                                    : 'border-(--border-default) bg-(--surface) text-(--text-secondary)'
+                            }`}
+                        >
+                            All
+                        </button>
+                        {projects.map(p => (
+                            <button
+                                key={p.id}
+                                onClick={() => setProjectFilter(p.id)}
+                                className={`px-3.5 py-[5px] rounded-full text-[12px] font-medium font-body cursor-pointer border ${
+                                    projectFilter === p.id
+                                        ? 'border-[var(--accent)] bg-[var(--accent-tint)] text-[var(--accent)]'
+                                        : 'border-(--border-default) bg-(--surface) text-(--text-secondary)'
+                                }`}
+                            >
+                                {p.name}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 {isLoading && <p className="text-[13px] text-(--text-tertiary)">Loading…</p>}
                 {isError && <p className="text-[13px] text-(--status-error)">Failed to load tasks.</p>}
 
                 {!isLoading && !isError && (
-                    <div className="grid grid-cols-3 gap-4 items-start">
-                        {COLUMNS.map(col => (
-                            <TaskColumn key={col.key} title={col.title} count={grouped[col.key].length} dotColor={col.dotColor}>
-                                {grouped[col.key].map(t => (
-                                    <div key={t.id} className="relative group">
-                                        <TaskCard
-                                            task={t}
-                                            projectName={projectNameById[t.projectId]}
-                                            muted={col.muted}
-                                            onClick={() => openDetail(t)}
-                                        />
-                                        <div
-                                            onClick={e => e.stopPropagation()}
-                                            className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        >
-                                            <button
-                                                onClick={() => openEdit(t)}
-                                                className="p-1 rounded bg-transparent border-none cursor-pointer text-(--text-secondary) hover:text-(--text-primary)"
-                                                aria-label="Edit task"
-                                            >
-                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                                </svg>
-                                            </button>
-                                            <button
-                                                onClick={() => setToDelete(t)}
-                                                className="p-1 rounded bg-transparent border-none cursor-pointer text-(--status-error)"
-                                                aria-label="Delete task"
-                                            >
-                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                    <polyline points="3 6 5 6 21 6" />
-                                                    <path d="M19 6l-1 14H6L5 6" />
-                                                    <path d="M10 11v6M14 11v6" />
-                                                    <path d="M9 6V4h6v2" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                                {grouped[col.key].length === 0 && (
-                                    <p className="text-[12px] text-(--text-tertiary) text-center py-4">No tasks</p>
-                                )}
-                            </TaskColumn>
-                        ))}
-                    </div>
+                    <DndContext
+                        sensors={sensors}
+                        onDragStart={e => { setActiveId(String(e.active.id)); setSelectedId(null); }}
+                        onDragOver={e => setOverId(e.over?.id ? String(e.over.id) : null)}
+                        onDragEnd={handleDragEnd}
+                        onDragCancel={() => { setActiveId(null); setOverId(null); }}
+                    >
+                        <div className="grid grid-cols-3 gap-4 items-start">
+                            {COLUMNS.map(col => (
+                                <DroppableColumn key={col.key} id={col.key} isOver={overId === col.key}>
+                                    <TaskColumn title={col.title} count={grouped[col.key].length} dotColor={col.dotColor}>
+                                        {grouped[col.key].map(t => (
+                                            <DraggableCard
+                                                key={t.id}
+                                                task={t}
+                                                projectName={projectNameById[t.projectId]}
+                                                muted={col.muted}
+                                                onEdit={() => openEdit(t)}
+                                                onDelete={() => setToDelete(t)}
+                                                onDetail={() => openDetail(t)}
+                                            />
+                                        ))}
+                                        {grouped[col.key].length === 0 && (
+                                            <p className="text-[12px] text-(--text-tertiary) text-center py-4">No tasks</p>
+                                        )}
+                                    </TaskColumn>
+                                </DroppableColumn>
+                            ))}
+                        </div>
+
+                        <DragOverlay dropAnimation={null}>
+                            {activeTask && (
+                                <div className="rotate-1 opacity-95 shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
+                                    <TaskCard
+                                        task={activeTask}
+                                        projectName={projectNameById[activeTask.projectId]}
+                                        onClick={() => {}}
+                                    />
+                                </div>
+                            )}
+                        </DragOverlay>
+                    </DndContext>
                 )}
             </div>
 
-            {selected && (
-                <TaskDetailDrawer
-                    task={selected}
-                    projectName={projectNameById[selected.projectId]}
-                    onClose={closeDetail}
-                />
-            )}
+            <TaskDetailDrawer
+                task={lastSelectedRef.current}
+                projectName={lastSelectedRef.current ? projectNameById[lastSelectedRef.current.projectId] : undefined}
+                open={selected !== null}
+                onClose={closeDetail}
+            />
 
             <ConfirmDialog
                 open={toDelete !== null}

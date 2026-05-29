@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import type {
     TaskDto,
+    TaskStatus,
     CreateTaskRequest,
     UpdateTaskRequest,
     UpdateTaskStatusRequest,
@@ -44,6 +45,14 @@ export function useUpdateTaskStatus(id: string) {
     const qc = useQueryClient();
     return useMutation<TaskDto, Error, UpdateTaskStatusRequest>({
         mutationFn: (data) => api.patch<TaskDto>(`/tasks/${id}/status`, data).then(r => r.data),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+    });
+}
+
+export function useUpdateAnyTaskStatus() {
+    const qc = useQueryClient();
+    return useMutation<TaskDto, Error, { id: string; status: TaskStatus }>({
+        mutationFn: ({ id, status }) => api.patch<TaskDto>(`/tasks/${id}/status`, { status }).then(r => r.data),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
     });
 }

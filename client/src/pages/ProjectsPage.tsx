@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useProjectsQuery, useDeleteProject } from '@/hooks/useProject';
 import { useClientsQuery } from '@/hooks/useClient';
+import { useTasksQuery } from '@/hooks/useTask';
 import type { ProjectDto, ProjectStatus } from '@/types/project';
 import SlideDrawer from '@/components/common/SlideDrawer';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
@@ -24,12 +25,23 @@ export default function ProjectsPage() {
 
     const { data: projects, isLoading, isError } = useProjectsQuery();
     const { data: clients = [] } = useClientsQuery();
+    const { data: tasks = [] } = useTasksQuery();
     const deleteMutation = useDeleteProject();
 
     const clientNameById = useMemo(
         () => Object.fromEntries(clients.map(c => [c.id, c.name])),
         [clients],
     );
+
+    const taskStatsByProject = useMemo(() => {
+        const map: Record<string, { total: number; done: number }> = {};
+        tasks.forEach(t => {
+            if (!map[t.projectId]) map[t.projectId] = { total: 0, done: 0 };
+            map[t.projectId].total++;
+            if (t.status === 'DONE') map[t.projectId].done++;
+        });
+        return map;
+    }, [tasks]);
 
     function openCreate() { setEditing(null); setDrawerOpen(true); }
     function openEdit(project: ProjectDto) { setEditing(project); setDrawerOpen(true); }
@@ -92,6 +104,8 @@ export default function ProjectsPage() {
                                     <ProjectCard
                                         project={p}
                                         clientName={clientNameById[p.clientId]}
+                                        taskCount={taskStatsByProject[p.id]?.total}
+                                        doneCount={taskStatsByProject[p.id]?.done}
                                         onClick={() => openEdit(p)}
                                     />
                                     <button
