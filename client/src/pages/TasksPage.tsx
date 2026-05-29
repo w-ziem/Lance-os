@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTasksQuery, useDeleteTask } from '@/hooks/useTask';
 import { useProjectsQuery } from '@/hooks/useProject';
 import type { TaskDto } from '@/types/task';
@@ -40,6 +40,11 @@ export default function TasksPage() {
         () => (selectedId ? (tasks ?? []).find(t => t.id === selectedId) ?? null : null),
         [tasks, selectedId],
     );
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (selectedId && !selected) setSelectedId(null);
+    }, [selectedId, selected]);
 
     function openCreate() { setEditing(null); setEditDrawerOpen(true); setSelectedId(null); }
     function openEdit(task: TaskDto) { setEditing(task); setEditDrawerOpen(true); setSelectedId(null); }
