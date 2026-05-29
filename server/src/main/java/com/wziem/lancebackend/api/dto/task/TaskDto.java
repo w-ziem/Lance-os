@@ -1,10 +1,12 @@
 package com.wziem.lancebackend.api.dto.task;
 
+import com.wziem.lancebackend.api.dto.subtask.SubtaskDto;
 import com.wziem.lancebackend.model.enums.TaskPriority;
 import com.wziem.lancebackend.model.enums.TaskStatus;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 public record TaskDto(
@@ -16,6 +18,7 @@ public record TaskDto(
         TaskPriority priority,
         LocalDate deadline,
         Double estimateHours,
+        List<SubtaskDto> subtasks,
         Instant createdAt,
         Instant updatedAt
 ) {}

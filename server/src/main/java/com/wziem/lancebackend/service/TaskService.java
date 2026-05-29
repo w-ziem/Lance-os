@@ -6,10 +6,12 @@ import com.wziem.lancebackend.api.dto.task.UpdateTaskRequest;
 import com.wziem.lancebackend.api.dto.task.UpdateTaskStatusRequest;
 import com.wziem.lancebackend.api.mapper.TaskMapper;
 import com.wziem.lancebackend.config.SecurityUtils;
+import com.wziem.lancebackend.model.entity.Subtask;
 import com.wziem.lancebackend.model.entity.Task;
 import com.wziem.lancebackend.model.enums.TaskPriority;
 import com.wziem.lancebackend.model.enums.TaskStatus;
 import com.wziem.lancebackend.model.repository.ProjectRepository;
+import com.wziem.lancebackend.model.repository.SubtaskRepository;
 import com.wziem.lancebackend.model.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +30,7 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final ProjectRepository projectRepository;
+    private final SubtaskRepository subtaskRepository;
     private final TaskMapper taskMapper;
 
     public List<TaskDto> getAllTasks(UUID projectId) {
@@ -32,14 +38,24 @@ public class TaskService {
         List<Task> tasks = projectId != null
                 ? taskRepository.findAllByUserIdAndProjectId(userId, projectId)
                 : taskRepository.findAllByUserId(userId);
-        return tasks.stream().map(taskMapper::toDto).toList();
+
+        if (tasks.isEmpty()) return List.of();
+
+        Set<UUID> taskIds = tasks.stream().map(Task::getId).collect(Collectors.toSet());
+        Map<UUID, List<Subtask>> byTask = subtaskRepository.findAllByTaskIdInOrderByPositionAsc(taskIds).stream()
+                .collect(Collectors.groupingBy(Subtask::getTaskId));
+
+        return tasks.stream()
+                .map(t -> taskMapper.toDto(t, byTask.getOrDefault(t.getId(), List.of())))
+                .toList();
     }
 
     public TaskDto getTask(UUID id) {
         UUID userId = SecurityUtils.getCurrentUserId();
-        return taskRepository.findByIdAndUserId(id, userId)
-                .map(taskMapper::toDto)
+        Task task = taskRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+        List<Subtask> subtasks = subtaskRepository.findAllByTaskIdOrderByPositionAsc(id);
+        return taskMapper.toDto(task, subtasks);
     }
 
     @Transactional
@@ -58,7 +74,8 @@ public class TaskService {
                 .estimateHours(request.estimateHours())
                 .build();
 
-        return taskMapper.toDto(taskRepository.save(task));
+        Task saved = taskRepository.save(task);
+        return taskMapper.toDto(saved, List.of());
     }
 
     @Transactional
@@ -78,7 +95,9 @@ public class TaskService {
         task.setDeadline(request.deadline());
         task.setEstimateHours(request.estimateHours());
 
-        return taskMapper.toDto(taskRepository.save(task));
+        Task saved = taskRepository.save(task);
+        List<Subtask> subtasks = subtaskRepository.findAllByTaskIdOrderByPositionAsc(id);
+        return taskMapper.toDto(saved, subtasks);
     }
 
     @Transactional
@@ -89,7 +108,9 @@ public class TaskService {
 
         task.setStatus(request.status());
 
-        return taskMapper.toDto(taskRepository.save(task));
+        Task saved = taskRepository.save(task);
+        List<Subtask> subtasks = subtaskRepository.findAllByTaskIdOrderByPositionAsc(id);
+        return taskMapper.toDto(saved, subtasks);
     }
 
     @Transactional
