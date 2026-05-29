@@ -75,27 +75,27 @@ export default function TaskForm({ task, defaultProjectId, onSuccess }: TaskForm
             <FormField label="Title *" name="title" value={data.title} onChange={handleChange('title')} placeholder="Write project brief" error={errors.title} />
 
             <div className="flex flex-col gap-[5px]">
-                <label htmlFor="projectId" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">Project *</label>
+                <label htmlFor="projectId" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Project *</label>
                 <select
                     id="projectId"
                     value={data.projectId}
                     onChange={handleChange('projectId')}
-                    className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                    className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
                 >
                     <option value="">— Select project —</option>
                     {projects.map(p => (<option key={p.id} value={p.id}>{p.name}</option>))}
                 </select>
-                {errors.projectId && <p className="text-[12px] text-status-error m-0">{errors.projectId}</p>}
+                {errors.projectId && <p className="text-[12px] text-(--status-error) m-0">{errors.projectId}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col gap-[5px]">
-                    <label htmlFor="priority" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">Priority</label>
+                    <label htmlFor="priority" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Priority</label>
                     <select
                         id="priority"
                         value={data.priority}
                         onChange={handleChange('priority')}
-                        className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                        className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
                     >
                         {PRIORITIES.map(p => (<option key={p} value={p}>{p.toLowerCase()}</option>))}
                     </select>
@@ -103,12 +103,12 @@ export default function TaskForm({ task, defaultProjectId, onSuccess }: TaskForm
 
                 {!task && (
                     <div className="flex flex-col gap-[5px]">
-                        <label htmlFor="status" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">Status</label>
+                        <label htmlFor="status" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Status</label>
                         <select
                             id="status"
                             value={data.status}
                             onChange={handleChange('status')}
-                            className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                            className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
                         >
                             {STATUSES.map(s => (<option key={s} value={s}>{s.toLowerCase().replace('_', ' ')}</option>))}
                         </select>
@@ -131,14 +131,14 @@ export default function TaskForm({ task, defaultProjectId, onSuccess }: TaskForm
             </div>
 
             <div className="flex flex-col gap-[5px]">
-                <label htmlFor="description" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">Description</label>
+                <label htmlFor="description" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Description</label>
                 <textarea
                     id="description"
                     value={data.description}
                     onChange={handleChange('description')}
                     placeholder="Acceptance criteria, notes…"
                     rows={4}
-                    className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none resize-y focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                    className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none resize-y focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
                 />
             </div>
 

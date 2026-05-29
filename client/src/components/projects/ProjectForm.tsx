@@ -63,29 +63,29 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps) {
             <FormField label="Name *" name="name" value={data.name} onChange={handleChange('name')} placeholder="Brand Refresh" error={errors.name} />
 
             <div className="flex flex-col gap-[5px]">
-                <label htmlFor="clientId" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">Client *</label>
+                <label htmlFor="clientId" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Client *</label>
                 <select
                     id="clientId"
                     value={data.clientId}
                     onChange={handleChange('clientId')}
-                    className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                    className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
                 >
                     <option value="">— Select client —</option>
                     {clients.map(c => (<option key={c.id} value={c.id}>{c.name}</option>))}
                 </select>
-                {errors.clientId && <p className="text-[12px] text-status-error m-0">{errors.clientId}</p>}
+                {errors.clientId && <p className="text-[12px] text-(--status-error) m-0">{errors.clientId}</p>}
             </div>
 
             <FormField label="Deadline" name="deadline" type="date" value={data.deadline} onChange={handleChange('deadline')} />
 
             {!project && (
                 <div className="flex flex-col gap-[5px]">
-                    <label htmlFor="status" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">Status</label>
+                    <label htmlFor="status" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Status</label>
                     <select
                         id="status"
                         value={data.status}
                         onChange={handleChange('status')}
-                        className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                        className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
                     >
                         {STATUSES.map(s => (<option key={s} value={s}>{s.toLowerCase().replace('_', ' ')}</option>))}
                     </select>
@@ -93,14 +93,14 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps) {
             )}
 
             <div className="flex flex-col gap-[5px]">
-                <label htmlFor="description" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">Description</label>
+                <label htmlFor="description" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Description</label>
                 <textarea
                     id="description"
                     value={data.description}
                     onChange={handleChange('description')}
                     placeholder="Goals, scope, notes…"
                     rows={4}
-                    className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none resize-y focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                    className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none resize-y focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
                 />
             </div>
 

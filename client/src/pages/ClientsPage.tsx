@@ -33,10 +33,10 @@ export default function ClientsPage() {
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="font-display font-bold text-[25px] text-text-primary m-0 tracking-[-0.03em]">
+            <h1 className="font-display font-bold text-[25px] text-(--text-primary) m-0 tracking-[-0.03em]">
               Clients
             </h1>
-            <p className="text-[12px] text-text-tertiary mt-1">
+            <p className="text-[12px] text-(--text-tertiary) mt-1">
               {filtered.length} total
             </p>
           </div>
@@ -55,7 +55,7 @@ export default function ClientsPage() {
         <div className="relative w-[260px] mb-5">
           <svg
             width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-text-tertiary pointer-events-none"
+            className="absolute left-2.5 top-1/2 -translate-y-1/2 text-(--text-tertiary) pointer-events-none"
           >
             <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -63,27 +63,27 @@ export default function ClientsPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search clients…"
-            className="w-full pl-8 pr-3 py-[9px] border border-border-default rounded-[7px] text-[13px] font-body text-text-primary bg-surface outline-none"
+            className="w-full pl-8 pr-3 py-[9px] border border-(--border-default) rounded-[7px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none"
           />
         </div>
 
         {/* States */}
-        {isLoading && <p className="text-[13px] text-text-tertiary">Loading…</p>}
-        {isError && <p className="text-[13px] text-status-error">Failed to load clients.</p>}
+        {isLoading && <p className="text-[13px] text-(--text-tertiary)">Loading…</p>}
+        {isError && <p className="text-[13px] text-(--status-error)">Failed to load clients.</p>}
 
         {/* Table */}
         {!isLoading && !isError && (
           filtered.length === 0 ? (
-            <p className="text-[13px] text-text-tertiary mt-10 text-center">
+            <p className="text-[13px] text-(--text-tertiary) mt-10 text-center">
               {search ? 'No clients match your search.' : 'No clients yet. Add your first one.'}
             </p>
           ) : (
-            <div className="bg-surface border border-border-default rounded-[10px] overflow-hidden">
+            <div className="bg-(--surface) border border-(--border-default) rounded-[10px] overflow-hidden">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-bg-secondary">
+                  <tr className="bg-(--bg-secondary)">
                     {['Client', 'Company', 'Email', 'Phone', 'Created', ''].map(label => (
-                      <th key={label} className="px-4 py-[10px] text-left text-[11px] font-semibold text-text-secondary tracking-[0.04em] uppercase border-b border-border-default">
+                      <th key={label} className="px-4 py-[10px] text-left text-[11px] font-semibold text-(--text-secondary) tracking-[0.04em] uppercase border-b border-(--border-default)">
                         {label}
                       </th>
                     ))}

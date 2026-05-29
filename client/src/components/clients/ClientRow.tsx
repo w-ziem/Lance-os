@@ -16,13 +16,13 @@ export default function ClientRow({ client, onEdit, onDelete, last }: ClientRowP
         day: 'numeric', month: 'short', year: 'numeric',
     });
 
-    const border = last ? '' : 'border-b border-border-default';
-    const cell = `px-4 py-3 text-[13px] text-text-primary align-middle cursor-pointer ${border}`;
-    const muted = `px-4 py-3 text-[13px] text-text-secondary align-middle cursor-pointer ${border}`;
+    const border = last ? '' : 'border-b border-(--border-default)';
+    const cell = `px-4 py-3 text-[13px] text-(--text-primary) align-middle cursor-pointer ${border}`;
+    const muted = `px-4 py-3 text-[13px] text-(--text-secondary) align-middle cursor-pointer ${border}`;
 
     return (
         // group — pozwala dzieciom reagować na hover rodzica przez group-hover:
-        <tr onClick={onEdit} className="group hover:bg-surface-hover transition-colors">
+        <tr onClick={onEdit} className="group hover:bg-(--surface-hover) transition-colors">
 
             <td className={cell}>
                 <div className="flex items-center gap-2.5">
@@ -36,7 +36,7 @@ export default function ClientRow({ client, onEdit, onDelete, last }: ClientRowP
                     <div>
                         <div className="font-medium">{client.name}</div>
                         {client.companyName && (
-                            <div className="text-[11px] text-text-tertiary mt-px">{client.companyName}</div>
+                            <div className="text-[11px] text-(--text-tertiary) mt-px">{client.companyName}</div>
                         )}
                     </div>
                 </div>
@@ -55,7 +55,7 @@ export default function ClientRow({ client, onEdit, onDelete, last }: ClientRowP
                 >
                     <button
                         onClick={onEdit}
-                        className="p-1 rounded bg-transparent border-none cursor-pointer text-text-secondary hover:text-text-primary"
+                        className="p-1 rounded bg-transparent border-none cursor-pointer text-(--text-secondary) hover:text-(--text-primary)"
                     >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -64,7 +64,7 @@ export default function ClientRow({ client, onEdit, onDelete, last }: ClientRowP
                     </button>
                     <button
                         onClick={onDelete}
-                        className="p-1 rounded bg-transparent border-none cursor-pointer text-status-error"
+                        className="p-1 rounded bg-transparent border-none cursor-pointer text-(--status-error)"
                     >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                             <polyline points="3 6 5 6 21 6" />

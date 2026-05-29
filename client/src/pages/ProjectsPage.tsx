@@ -44,8 +44,8 @@ export default function ProjectsPage() {
 
                 <div className="flex justify-between items-start mb-[22px]">
                     <div>
-                        <h1 className="font-display font-bold text-[25px] text-text-primary m-0 tracking-[-0.03em]">Projects</h1>
-                        <p className="text-[12px] text-text-tertiary mt-1">{filtered.length} projects</p>
+                        <h1 className="font-display font-bold text-[25px] text-(--text-primary) m-0 tracking-[-0.03em]">Projects</h1>
+                        <p className="text-[12px] text-(--text-tertiary) mt-1">{filtered.length} projects</p>
                     </div>
                     <button
                         onClick={openCreate}
@@ -68,7 +68,7 @@ export default function ProjectsPage() {
                                 className={`px-3.5 py-[5px] rounded-full text-[12px] font-medium font-body cursor-pointer border ${
                                     active
                                         ? 'border-[var(--accent)] bg-[var(--accent-tint)] text-[var(--accent)]'
-                                        : 'border-border-default bg-surface text-text-secondary'
+                                        : 'border-(--border-default) bg-(--surface) text-(--text-secondary)'
                                 }`}
                             >
                                 {f.label}
@@ -77,12 +77,12 @@ export default function ProjectsPage() {
                     })}
                 </div>
 
-                {isLoading && <p className="text-[13px] text-text-tertiary">Loading…</p>}
-                {isError && <p className="text-[13px] text-status-error">Failed to load projects.</p>}
+                {isLoading && <p className="text-[13px] text-(--text-tertiary)">Loading…</p>}
+                {isError && <p className="text-[13px] text-(--status-error)">Failed to load projects.</p>}
 
                 {!isLoading && !isError && (
                     filtered.length === 0 ? (
-                        <p className="text-[13px] text-text-tertiary mt-10 text-center">
+                        <p className="text-[13px] text-(--text-tertiary) mt-10 text-center">
                             {filter === 'ALL' ? 'No projects yet. Create your first one.' : 'No projects in this status.'}
                         </p>
                     ) : (
@@ -96,7 +96,7 @@ export default function ProjectsPage() {
                                     />
                                     <button
                                         onClick={(e) => { e.stopPropagation(); setToDelete(p); }}
-                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-transparent border-none cursor-pointer text-status-error"
+                                        className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded bg-transparent border-none cursor-pointer text-(--status-error)"
                                         aria-label="Delete project"
                                     >
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

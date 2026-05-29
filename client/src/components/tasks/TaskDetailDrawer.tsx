@@ -15,7 +15,7 @@ const STATUS_LABEL: Record<TaskStatus, string> = {
     DONE:        'Done',
 };
 
-const PRIORITY_COLOR = { HIGH: 'bg-status-error', MEDIUM: 'bg-status-warning', LOW: 'bg-status-success' } as const;
+const PRIORITY_COLOR = { HIGH: 'bg-(--status-error)', MEDIUM: 'bg-(--status-warning)', LOW: 'bg-(--status-success)' } as const;
 
 function formatDeadline(iso?: string) {
     if (!iso) return '—';
@@ -48,17 +48,17 @@ export default function TaskDetailDrawer({ task, projectName, onClose }: TaskDet
     }
 
     return (
-        <div className="w-[340px] shrink-0 h-screen bg-surface border-l border-border-default shadow-[-4px_0_20px_rgba(0,0,0,0.06)] flex flex-col overflow-y-auto">
-            <div className="flex items-start justify-between px-5 py-4 border-b border-border-default gap-2">
+        <div className="w-[340px] shrink-0 h-screen bg-(--surface) border-l border-(--border-default) shadow-[-4px_0_20px_rgba(0,0,0,0.06)] flex flex-col overflow-y-auto">
+            <div className="flex items-start justify-between px-5 py-4 border-b border-(--border-default) gap-2">
                 <div>
-                    <div className="font-display font-semibold text-[15px] text-text-primary leading-[1.3]">
+                    <div className="font-display font-semibold text-[15px] text-(--text-primary) leading-[1.3]">
                         {task.title}
                     </div>
-                    <div className="text-[12px] text-text-secondary mt-1">{projectName ?? '—'}</div>
+                    <div className="text-[12px] text-(--text-secondary) mt-1">{projectName ?? '—'}</div>
                 </div>
                 <button
                     onClick={onClose}
-                    className="w-7 h-7 flex items-center justify-center rounded-md border border-border-default bg-bg-secondary text-text-secondary cursor-pointer shrink-0"
+                    className="w-7 h-7 flex items-center justify-center rounded-md border border-(--border-default) bg-(--bg-secondary) text-(--text-secondary) cursor-pointer shrink-0"
                     aria-label="Close"
                 >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -71,26 +71,26 @@ export default function TaskDetailDrawer({ task, projectName, onClose }: TaskDet
             <div className="p-5 flex flex-col gap-[18px]">
                 <div className="grid grid-cols-2 gap-3">
                     <div>
-                        <div className="text-[10px] text-text-tertiary uppercase tracking-[0.06em] mb-1">Deadline</div>
-                        <div className="text-[13px] text-text-primary">{formatDeadline(task.deadline)}</div>
+                        <div className="text-[10px] text-(--text-tertiary) uppercase tracking-[0.06em] mb-1">Deadline</div>
+                        <div className="text-[13px] text-(--text-primary)">{formatDeadline(task.deadline)}</div>
                     </div>
                     <div>
-                        <div className="text-[10px] text-text-tertiary uppercase tracking-[0.06em] mb-1">Estimate</div>
-                        <div className="text-[13px] text-text-primary">{formatEstimate(task.estimateHours)}</div>
+                        <div className="text-[10px] text-(--text-tertiary) uppercase tracking-[0.06em] mb-1">Estimate</div>
+                        <div className="text-[13px] text-(--text-primary)">{formatEstimate(task.estimateHours)}</div>
                     </div>
                     <div className="col-span-2">
-                        <div className="text-[10px] text-text-tertiary uppercase tracking-[0.06em] mb-1">Priority</div>
+                        <div className="text-[10px] text-(--text-tertiary) uppercase tracking-[0.06em] mb-1">Priority</div>
                         <div className="flex items-center gap-1.5">
                             <span className={`w-[7px] h-[7px] rounded-full ${PRIORITY_COLOR[task.priority]}`} />
-                            <span className="text-[13px] text-text-primary">{task.priority.toLowerCase()}</span>
+                            <span className="text-[13px] text-(--text-primary)">{task.priority.toLowerCase()}</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="h-px bg-border-default" />
+                <div className="h-px bg-(--border-default)" />
 
                 <div>
-                    <div className="text-[10px] text-text-tertiary uppercase tracking-[0.06em] mb-2.5">Move to</div>
+                    <div className="text-[10px] text-(--text-tertiary) uppercase tracking-[0.06em] mb-2.5">Move to</div>
                     <div className="flex gap-2 flex-wrap">
                         {(['TODO', 'IN_PROGRESS', 'DONE'] as TaskStatus[]).map(s => {
                             const active = task.status === s;
@@ -102,7 +102,7 @@ export default function TaskDetailDrawer({ task, projectName, onClose }: TaskDet
                                     className={`px-3 py-1.5 rounded-full text-[12px] font-medium font-body border cursor-pointer ${
                                         active
                                             ? 'border-[var(--accent)] bg-[var(--accent-tint)] text-[var(--accent)]'
-                                            : 'border-border-default bg-surface text-text-secondary hover:bg-surface-hover'
+                                            : 'border-(--border-default) bg-(--surface) text-(--text-secondary) hover:bg-(--surface-hover)'
                                     } disabled:cursor-default`}
                                 >
                                     {STATUS_LABEL[s]}
@@ -112,16 +112,16 @@ export default function TaskDetailDrawer({ task, projectName, onClose }: TaskDet
                     </div>
                 </div>
 
-                <div className="h-px bg-border-default" />
+                <div className="h-px bg-(--border-default)" />
 
                 <SubtaskList taskId={task.id} subtasks={task.subtasks} />
 
                 {task.description && (
                     <>
-                        <div className="h-px bg-border-default" />
+                        <div className="h-px bg-(--border-default)" />
                         <div>
-                            <div className="text-[10px] text-text-tertiary uppercase tracking-[0.06em] mb-2.5">Description</div>
-                            <p className="text-[13px] text-text-primary whitespace-pre-wrap m-0 leading-[1.5]">{task.description}</p>
+                            <div className="text-[10px] text-(--text-tertiary) uppercase tracking-[0.06em] mb-2.5">Description</div>
+                            <p className="text-[13px] text-(--text-primary) whitespace-pre-wrap m-0 leading-[1.5]">{task.description}</p>
                         </div>
                     </>
                 )}

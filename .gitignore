@@ -68,7 +68,8 @@ dist-ssr/
 
 
 # .md files (for now will do README.md in the future)
-*.md
+docs/
+docs/*
 
 
 # Keep lockfiles in version control (do not ignore package-lock.json / yarn.lock / pnpm-lock.yaml)

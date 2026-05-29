@@ -12,7 +12,7 @@ import TaskDetailDrawer from '@/components/tasks/TaskDetailDrawer';
 const COLUMNS = [
     { key: 'TODO' as const,        title: 'To Do',       dotColor: 'bg-[var(--text-tertiary)]', muted: false },
     { key: 'IN_PROGRESS' as const, title: 'In Progress', dotColor: 'bg-[var(--accent)]', muted: false },
-    { key: 'DONE' as const,        title: 'Done',        dotColor: 'bg-status-success', muted: true },
+    { key: 'DONE' as const,        title: 'Done',        dotColor: 'bg-(--status-success)', muted: true },
 ];
 
 export default function TasksPage() {
@@ -59,8 +59,8 @@ export default function TasksPage() {
 
                 <div className="flex justify-between items-start mb-[26px]">
                     <div>
-                        <h1 className="font-display font-bold text-[25px] text-text-primary m-0 tracking-[-0.03em]">Tasks</h1>
-                        <p className="text-[12px] text-text-tertiary mt-1">Kanban board</p>
+                        <h1 className="font-display font-bold text-[25px] text-(--text-primary) m-0 tracking-[-0.03em]">Tasks</h1>
+                        <p className="text-[12px] text-(--text-tertiary) mt-1">Kanban board</p>
                     </div>
                     <button
                         onClick={openCreate}
@@ -73,8 +73,8 @@ export default function TasksPage() {
                     </button>
                 </div>
 
-                {isLoading && <p className="text-[13px] text-text-tertiary">Loading…</p>}
-                {isError && <p className="text-[13px] text-status-error">Failed to load tasks.</p>}
+                {isLoading && <p className="text-[13px] text-(--text-tertiary)">Loading…</p>}
+                {isError && <p className="text-[13px] text-(--status-error)">Failed to load tasks.</p>}
 
                 {!isLoading && !isError && (
                     <div className="grid grid-cols-3 gap-4 items-start">
@@ -94,7 +94,7 @@ export default function TasksPage() {
                                         >
                                             <button
                                                 onClick={() => openEdit(t)}
-                                                className="p-1 rounded bg-transparent border-none cursor-pointer text-text-secondary hover:text-text-primary"
+                                                className="p-1 rounded bg-transparent border-none cursor-pointer text-(--text-secondary) hover:text-(--text-primary)"
                                                 aria-label="Edit task"
                                             >
                                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -104,7 +104,7 @@ export default function TasksPage() {
                                             </button>
                                             <button
                                                 onClick={() => setToDelete(t)}
-                                                className="p-1 rounded bg-transparent border-none cursor-pointer text-status-error"
+                                                className="p-1 rounded bg-transparent border-none cursor-pointer text-(--status-error)"
                                                 aria-label="Delete task"
                                             >
                                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -118,7 +118,7 @@ export default function TasksPage() {
                                     </div>
                                 ))}
                                 {grouped[col.key].length === 0 && (
-                                    <p className="text-[12px] text-text-tertiary text-center py-4">No tasks</p>
+                                    <p className="text-[12px] text-(--text-tertiary) text-center py-4">No tasks</p>
                                 )}
                             </TaskColumn>
                         ))}

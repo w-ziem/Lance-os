@@ -14,16 +14,16 @@ export default function SlideDrawer({ open, title, onClose, children }: SlideDra
     }
 
     return (
-        <div className="w-[380px] shrink-0 h-screen bg-surface border-l border-border-default shadow-[-6px_0_24px_rgba(0,0,0,0.07)] flex flex-col">
+        <div className="w-[380px] shrink-0 h-screen bg-(--surface) border-l border-(--border-default) shadow-[-6px_0_24px_rgba(0,0,0,0.07)] flex flex-col">
 
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-4 border-b border-border-default">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-(--border-default)">
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: 16, color: 'var(--text-primary)' }}>
                     {title}
                 </span>
                 <button
                     onClick={onClose}
-                    className="w-7 h-7 flex items-center justify-center rounded-md border border-border-default bg-bg-secondary hover:bg-border-default transition-colors cursor-pointer"
+                    className="w-7 h-7 flex items-center justify-center rounded-md border border-(--border-default) bg-(--bg-secondary) hover:bg-(--border-default) transition-colors cursor-pointer"
                     style={{ color: 'var(--text-secondary)' }}
                 >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -41,4 +41,3 @@ export default function SlideDrawer({ open, title, onClose, children }: SlideDra
         </div>
     );
 }
-

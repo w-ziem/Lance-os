@@ -55,7 +55,7 @@ function ClientForm({ client, onSuccess }: ClientFormProps) {
             <FormField label="Phone" name="phone" value={data.phone} onChange={handleChange('phone')} placeholder="+48 600 000 000" />
 
             <div className="flex flex-col gap-[5px]">
-                <label htmlFor="notes" className="text-[12px] font-medium text-text-secondary tracking-[0.01em]">
+                <label htmlFor="notes" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">
                     Notes
                 </label>
                 <textarea
@@ -64,7 +64,7 @@ function ClientForm({ client, onSuccess }: ClientFormProps) {
                     onChange={handleChange('notes')}
                     placeholder="Additional notes..."
                     rows={4}
-                    className="border border-border-default rounded-lg px-3 py-[10px] text-[13px] font-body text-text-primary bg-surface outline-none resize-y transition-[border,box-shadow] duration-[140ms] focus:border-accent focus:shadow-[0_0_0_3px_rgba(79,70,229,0.13)]"
+                    className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none resize-y transition-[border,box-shadow] duration-[140ms] focus:border-(--accent) focus:shadow-[0_0_0_3px_rgba(79,70,229,0.13)]"
                 />
             </div>
 
