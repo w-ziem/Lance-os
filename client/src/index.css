@@ -125,3 +125,19 @@ html {
 .agent-pulse {
     animation: agent-pulse 2s ease-in-out infinite;
 }
+
+/* Primary accent button hover — scale + darken */
+.btn-accent {
+    transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn-accent:hover:not(:disabled) {
+    transform: scale(1.015);
+    filter: brightness(0.88);
+    box-shadow: rgba(79, 70, 229, 0.42) 0 4px 18px;
+}
+
+.btn-accent:active:not(:disabled) {
+    transform: scale(0.99);
+    transition-duration: 0.07s;
+}

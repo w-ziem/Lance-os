@@ -18,6 +18,7 @@ export default function SubmitButton({
     <button
       type={type}
       disabled={isDisabled}
+      className="btn-accent"
       style={{
         background: isDisabled ? 'rgba(79, 70, 229, 0.6)' : 'var(--accent)',
         color: '#fff',

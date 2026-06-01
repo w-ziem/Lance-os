@@ -9,32 +9,32 @@ import ClientForm from '@/components/clients/ClientForm';
 import ClientRow from '@/components/clients/ClientRow';
 
 function ClientProjectStats({ clientId }: { clientId: string }) {
-    const { data } = useClientQuery(clientId);
+  const { data } = useClientQuery(clientId);
 
-    const active    = data?.activeProjects ?? 0;
-    const completed = data?.completedProjects ?? 0;
-    const total     = active + completed;
+  const active = data?.activeProjects ?? 0;
+  const completed = data?.completedProjects ?? 0;
+  const total = active + completed;
 
-    return (
-        <div>
-            <div className="h-px bg-(--border-default) mb-4" />
-            {total === 0 ? (
-                <p className="text-[13px] text-(--text-tertiary)">No projects yet.</p>
-            ) : (
-                <div className="flex gap-4">
-                    <div>
-                        <span className="text-[20px] font-display font-bold text-(--text-primary)">{active}</span>
-                        <p className="text-[11px] text-(--text-tertiary) mt-0.5">active project{active !== 1 ? 's' : ''}</p>
-                    </div>
-                    <div className="w-px bg-(--border-default)" />
-                    <div>
-                        <span className="text-[20px] font-display font-bold text-(--text-primary)">{completed}</span>
-                        <p className="text-[11px] text-(--text-tertiary) mt-0.5">completed project{completed !== 1 ? 's' : ''}</p>
-                    </div>
-                </div>
-            )}
+  return (
+    <div>
+      <div className="h-px bg-(--border-default) mb-4" />
+      {total === 0 ? (
+        <p className="text-[13px] text-(--text-tertiary)">No projects yet.</p>
+      ) : (
+        <div className="flex gap-4">
+          <div>
+            <span className="text-[20px] font-display font-bold text-(--text-primary)">{active}</span>
+            <p className="text-[11px] text-(--text-tertiary) mt-0.5">active project{active !== 1 ? 's' : ''}</p>
+          </div>
+          <div className="w-px bg-(--border-default)" />
+          <div>
+            <span className="text-[20px] font-display font-bold text-(--text-primary)">{completed}</span>
+            <p className="text-[11px] text-(--text-tertiary) mt-0.5">completed project{completed !== 1 ? 's' : ''}</p>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 }
 
 export default function ClientsPage() {
@@ -73,7 +73,7 @@ export default function ClientsPage() {
           </div>
           <button
             onClick={openCreate}
-            className="flex items-center gap-1.5 bg-[var(--accent)] text-white border-none rounded-lg px-3.5 py-[9px] text-[13px] font-semibold font-body cursor-pointer shadow-[rgba(79,70,229,0.27)_0_2px_12px]"
+            className="btn-accent flex items-center gap-1.5 bg-(--accent) text-white border-none rounded-lg px-3.5 py-[9px] text-[13px] font-semibold font-body cursor-pointer shadow-[rgba(79,70,229,0.27)_0_2px_12px]"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
