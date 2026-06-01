@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
 import type {
     TaskDto,
@@ -7,6 +7,13 @@ import type {
     UpdateTaskRequest,
     UpdateTaskStatusRequest,
 } from '@/types/task';
+
+// Centralised cache buster — any change to a task (status, fields, schedule,
+// subtasks) must invalidate both the kanban list and the calendar view.
+export function invalidateTaskCaches(qc: QueryClient) {
+    qc.invalidateQueries({ queryKey: ['tasks'] });
+    qc.invalidateQueries({ queryKey: ['schedule'] });
+}
 
 export function useTasksQuery(projectId?: string) {
     return useQuery<TaskDto[]>({
@@ -29,7 +36,7 @@ export function useCreateTask() {
     const qc = useQueryClient();
     return useMutation<TaskDto, Error, CreateTaskRequest>({
         mutationFn: (data) => api.post<TaskDto>('/tasks', data).then(r => r.data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+        onSuccess: () => invalidateTaskCaches(qc),
     });
 }
 
@@ -37,7 +44,7 @@ export function useUpdateTask(id: string) {
     const qc = useQueryClient();
     return useMutation<TaskDto, Error, UpdateTaskRequest>({
         mutationFn: (data) => api.put<TaskDto>(`/tasks/${id}`, data).then(r => r.data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+        onSuccess: () => invalidateTaskCaches(qc),
     });
 }
 
@@ -45,7 +52,7 @@ export function useUpdateTaskStatus(id: string) {
     const qc = useQueryClient();
     return useMutation<TaskDto, Error, UpdateTaskStatusRequest>({
         mutationFn: (data) => api.patch<TaskDto>(`/tasks/${id}/status`, data).then(r => r.data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+        onSuccess: () => invalidateTaskCaches(qc),
     });
 }
 
@@ -53,7 +60,7 @@ export function useUpdateAnyTaskStatus() {
     const qc = useQueryClient();
     return useMutation<TaskDto, Error, { id: string; status: TaskStatus }>({
         mutationFn: ({ id, status }) => api.patch<TaskDto>(`/tasks/${id}/status`, { status }).then(r => r.data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+        onSuccess: () => invalidateTaskCaches(qc),
     });
 }
 
@@ -61,6 +68,6 @@ export function useDeleteTask() {
     const qc = useQueryClient();
     return useMutation<void, Error, string>({
         mutationFn: (id) => api.delete(`/tasks/${id}`).then(r => r.data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
+        onSuccess: () => invalidateTaskCaches(qc),
     });
 }

@@ -8,6 +8,7 @@ import type {
     ScheduleViewRequest,
     UpdateTaskLockRequest,
 } from '@/types/schedule';
+import { invalidateTaskCaches } from '@/hooks/useTask';
 
 export function useScheduleViewQuery(range: ScheduleViewRequest) {
     return useQuery<ScheduleViewDto>({
@@ -29,10 +30,7 @@ export function useScheduleTask() {
     return useMutation<TaskDto, Error, { id: string; data: ScheduleTaskRequest }>({
         mutationFn: ({ id, data }) =>
             api.patch<TaskDto>(`/tasks/schedule/${id}`, data).then(r => r.data),
-        onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['schedule'] });
-            qc.invalidateQueries({ queryKey: ['tasks'] });
-        },
+        onSuccess: () => invalidateTaskCaches(qc),
     });
 }
 
@@ -40,10 +38,7 @@ export function useUnscheduleTask() {
     const qc = useQueryClient();
     return useMutation<TaskDto, Error, string>({
         mutationFn: (id) => api.delete<TaskDto>(`/tasks/schedule/${id}`).then(r => r.data),
-        onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['schedule'] });
-            qc.invalidateQueries({ queryKey: ['tasks'] });
-        },
+        onSuccess: () => invalidateTaskCaches(qc),
     });
 }
 
@@ -52,9 +47,6 @@ export function useToggleTaskLock() {
     return useMutation<TaskDto, Error, { id: string; data: UpdateTaskLockRequest }>({
         mutationFn: ({ id, data }) =>
             api.patch<TaskDto>(`/tasks/schedule/${id}/lock`, data).then(r => r.data),
-        onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ['schedule'] });
-            qc.invalidateQueries({ queryKey: ['tasks'] });
-        },
+        onSuccess: () => invalidateTaskCaches(qc),
     });
 }
