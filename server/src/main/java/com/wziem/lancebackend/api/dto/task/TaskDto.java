@@ -18,6 +18,9 @@ public record TaskDto(
         TaskPriority priority,
         LocalDate deadline,
         Double estimateHours,
+        Instant scheduledStart,
+        Instant scheduledEnd,
+        boolean locked,
         List<SubtaskDto> subtasks,
         Instant createdAt,
         Instant updatedAt

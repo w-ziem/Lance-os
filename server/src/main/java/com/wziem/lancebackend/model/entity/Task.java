@@ -50,6 +50,16 @@ public class Task {
     @Column(name = "estimate_hours")
     private Double estimateHours;
 
+    @Column(name = "scheduled_start")
+    private Instant scheduledStart;
+
+    @Column(name = "scheduled_end")
+    private Instant scheduledEnd;
+
+    @Column(name = "locked", nullable = false)
+    @Builder.Default
+    private boolean locked = false;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

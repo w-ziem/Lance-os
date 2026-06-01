@@ -28,6 +28,9 @@ export interface TaskDto {
     priority: TaskPriority;
     deadline: string;              // LocalDate: YYYY-MM-DD
     estimateHours: number | null;
+    scheduledStart: string | null; // Instant (ISO-8601)
+    scheduledEnd: string | null;   // Instant (ISO-8601)
+    locked: boolean;
     subtasks: SubtaskDto[];
     createdAt: string;
     updatedAt: string;
