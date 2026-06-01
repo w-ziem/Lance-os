@@ -251,10 +251,12 @@ export default function AuthPage() {
           flex: 1,
           background: 'var(--surface)',
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          padding: '48px 56px',
+          padding: '0 56px 56px',
+          paddingTop: 'clamp(48px, calc(50vh - 200px), 180px)',
           position: 'relative',
+          overflowY: 'auto',
         }}
       >
         {/* Subtle top accent line */}
