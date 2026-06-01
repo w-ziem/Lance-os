@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 import { useClientsQuery, useDeleteClient } from '@/hooks/useClient';
 import type { ClientDto } from '@/types/client';
+import type { AxiosError } from 'axios';
 import SlideDrawer from '@/components/common/SlideDrawer';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ClientForm from '@/components/clients/ClientForm';
@@ -113,8 +115,19 @@ export default function ClientsPage() {
         confirmLabel="Delete"
         onCancel={() => setClientToDelete(null)}
         onConfirm={() => {
-          if (clientToDelete) deleteMutation.mutate(clientToDelete.id);
+          if (!clientToDelete) return;
+          const target = clientToDelete;
           setClientToDelete(null);
+          deleteMutation.mutate(target.id, {
+            onError: (err) => {
+              const status = (err as AxiosError).response?.status;
+              if (status === 409) {
+                toast.error(`Cannot delete ${target.name} — they still have projects assigned. Remove the projects first.`);
+              } else {
+                toast.error('Failed to delete client. Please try again.');
+              }
+            },
+          });
         }}
       />
 

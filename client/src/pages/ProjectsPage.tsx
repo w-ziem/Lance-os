@@ -130,12 +130,20 @@ export default function ProjectsPage() {
             <ConfirmDialog
                 open={toDelete !== null}
                 title="Delete project"
-                message={`Delete "${toDelete?.name}"? Tasks under this project will be deleted too.`}
+                message={`Are you sure you want to delete "${toDelete?.name}"? This action cannot be undone.`}
+                warning={(() => {
+                    const count = toDelete ? (taskStatsByProject[toDelete.id]?.total ?? 0) : 0;
+                    return count > 0
+                        ? `This project has ${count} task${count === 1 ? '' : 's'}. All of them will be permanently deleted along with the project.`
+                        : undefined;
+                })()}
                 confirmLabel="Delete"
                 onCancel={() => setToDelete(null)}
                 onConfirm={() => {
-                    if (toDelete) deleteMutation.mutate(toDelete.id);
+                    if (!toDelete) return;
+                    const id = toDelete.id;
                     setToDelete(null);
+                    deleteMutation.mutate(id);
                 }}
             />
 
