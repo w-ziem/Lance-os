@@ -85,6 +85,14 @@ app:
   oauth2:
     # CONFIG frontend route used after successful OAuth2 login (without token in URL)
     frontend-callback-path: ${APP_OAUTH2_FRONTEND_CALLBACK_PATH:/oauth2/callback}
+
+  # CONFIG calendar working hours and slot granularity.
+  # Will be migrated to a per-user preference table later; for now global defaults.
+  schedule:
+    work-start-hour: ${APP_SCHEDULE_WORK_START_HOUR:8}
+    work-end-hour:   ${APP_SCHEDULE_WORK_END_HOUR:17}
+    slot-minutes:    ${APP_SCHEDULE_SLOT_MINUTES:30}
+
   ai-service:
     base-url: ${AI_SERVICE_URL:http://localhost:8000}
     timeout-seconds: 30

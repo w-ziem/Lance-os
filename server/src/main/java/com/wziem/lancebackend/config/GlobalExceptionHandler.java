@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.wziem.lancebackend.exceptions.BadAuthenticationException;
+import com.wziem.lancebackend.exceptions.ScheduleConflictException;
 import com.wziem.lancebackend.exceptions.UserAlreadyRegisteredException;
 import com.wziem.lancebackend.exceptions.UserNotRegisteredException;
 
@@ -54,6 +55,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<String> handleDataIntegrityViolation(DataIntegrityViolationException e) {
         return ResponseEntity.status(409).body("Cannot delete: record is referenced by other data." + e.getMessage());
+    }
+
+    @ExceptionHandler(ScheduleConflictException.class)
+    public ResponseEntity<String> handleScheduleConflict(ScheduleConflictException e) {
+        return ResponseEntity.status(409).body(e.getMessage());
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
