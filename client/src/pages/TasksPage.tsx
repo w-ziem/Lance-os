@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     DndContext,
     DragOverlay,
@@ -97,13 +98,26 @@ function DraggableCard({
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default function TasksPage() {
+    const location = useLocation();
+    const navigate = useNavigate();
+
     const [editDrawerOpen, setEditDrawerOpen] = useState(false);
     const [editing, setEditing] = useState<TaskDto | null>(null);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [selectedId, setSelectedId] = useState<string | null>(
+        () => (location.state as { openTaskId?: string } | null)?.openTaskId ?? null,
+    );
     const [toDelete, setToDelete] = useState<TaskDto | null>(null);
     const [projectFilter, setProjectFilter] = useState<string | null>(null);
     const [activeId, setActiveId] = useState<string | null>(null);
     const [overId, setOverId] = useState<string | null>(null);
+
+    // Clear router state after we consume `openTaskId` so a refresh / re-mount
+    // doesn't keep popping the drawer.
+    useEffect(() => {
+        if ((location.state as { openTaskId?: string } | null)?.openTaskId) {
+            navigate(location.pathname, { replace: true, state: null });
+        }
+    }, [location.pathname, location.state, navigate]);
 
     const { data: tasks, isLoading, isError } = useTasksQuery();
     const { data: projects = [] } = useProjectsQuery();
@@ -145,9 +159,11 @@ export default function TasksPage() {
     if (selected) lastSelectedRef.current = selected;
 
     useEffect(() => {
+        // Only clear once tasks have actually loaded — otherwise we'd reset the
+        // id passed in via router state before the lookup can resolve.
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        if (selectedId && !selected) setSelectedId(null);
-    }, [selectedId, selected]);
+        if (selectedId && tasks && !selected) setSelectedId(null);
+    }, [selectedId, selected, tasks]);
 
     function openCreate() { setEditing(null); setEditDrawerOpen(true); setSelectedId(null); }
     function openEdit(task: TaskDto) { setEditing(task); setEditDrawerOpen(true); setSelectedId(null); }

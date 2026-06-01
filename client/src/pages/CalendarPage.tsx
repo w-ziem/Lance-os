@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     DndContext,
     DragOverlay,
@@ -51,6 +52,7 @@ function fmtWeekLabel(start: Date): string {
 
 // ── Page ────────────────────────────────────────────────────────────────────
 export default function CalendarPage() {
+    const navigate = useNavigate();
     const [weekStart, setWeekStart] = useState<Date>(() => startOfWeek(new Date()));
     const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -83,9 +85,8 @@ export default function CalendarPage() {
     );
 
     function handleTaskClick(task: TaskDto) {
-        // Click → navigate to /tasks with the detail drawer open for this task.
-        // Wired up in the next commit; placeholder for now.
-        void task;
+        // Reschedule happens via drag; click opens the task in the tasks page detail drawer.
+        navigate('/tasks', { state: { openTaskId: task.id } });
     }
 
     function handleDragEnd(event: DragEndEvent) {
