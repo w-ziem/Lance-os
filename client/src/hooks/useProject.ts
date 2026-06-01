@@ -37,7 +37,10 @@ export function useUpdateProjectStatus(id: string) {
     const qc = useQueryClient();
     return useMutation<ProjectDto, Error, UpdateProjectStatusRequest>({
         mutationFn: (data) => api.patch<ProjectDto>(`/projects/${id}/status`, data).then(r => r.data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['projects'] }),
+        onSuccess: (updatedProject) => {
+            qc.invalidateQueries({ queryKey: ['projects'] });
+            qc.invalidateQueries({ queryKey: ['clients', updatedProject.clientId] });
+        },
     });
 }
 
@@ -48,6 +51,7 @@ export function useDeleteProject() {
         onSuccess: () => Promise.all([
             qc.invalidateQueries({ queryKey: ['projects'] }),
             qc.invalidateQueries({ queryKey: ['tasks'] }),
+            qc.invalidateQueries({ queryKey: ['clients'] }),
         ]),
     });
 }
