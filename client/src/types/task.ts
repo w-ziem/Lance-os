@@ -58,3 +58,7 @@ export interface UpdateTaskRequest {
 export interface UpdateTaskStatusRequest {
     status: TaskStatus;
 }
+
+export interface UpdateTaskPriorityRequest {
+    priority: TaskPriority;
+}

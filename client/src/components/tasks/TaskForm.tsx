@@ -88,7 +88,7 @@ export default function TaskForm({ task, defaultProjectId, onSuccess }: TaskForm
                 {errors.projectId && <p className="text-[12px] text-(--status-error) m-0">{errors.projectId}</p>}
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            {task ? (
                 <div className="flex flex-col gap-[5px]">
                     <label htmlFor="priority" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Priority</label>
                     <select
@@ -100,8 +100,19 @@ export default function TaskForm({ task, defaultProjectId, onSuccess }: TaskForm
                         {PRIORITIES.map(p => (<option key={p} value={p}>{p.toLowerCase()}</option>))}
                     </select>
                 </div>
-
-                {!task && (
+            ) : (
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="flex flex-col gap-[5px]">
+                        <label htmlFor="priority" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Priority</label>
+                        <select
+                            id="priority"
+                            value={data.priority}
+                            onChange={handleChange('priority')}
+                            className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
+                        >
+                            {PRIORITIES.map(p => (<option key={p} value={p}>{p.toLowerCase()}</option>))}
+                        </select>
+                    </div>
                     <div className="flex flex-col gap-[5px]">
                         <label htmlFor="status" className="text-[12px] font-medium text-(--text-secondary) tracking-[0.01em]">Status</label>
                         <select
@@ -113,8 +124,8 @@ export default function TaskForm({ task, defaultProjectId, onSuccess }: TaskForm
                             {STATUSES.map(s => (<option key={s} value={s}>{s.toLowerCase().replace('_', ' ')}</option>))}
                         </select>
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             <div className="grid grid-cols-2 gap-3">
                 <FormField label="Deadline" name="deadline" type="date" value={data.deadline} onChange={handleChange('deadline')} />

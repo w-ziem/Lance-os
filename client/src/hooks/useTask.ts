@@ -6,6 +6,7 @@ import type {
     CreateTaskRequest,
     UpdateTaskRequest,
     UpdateTaskStatusRequest,
+    UpdateTaskPriorityRequest,
 } from '@/types/task';
 
 // Centralised cache buster — any change to a task (status, fields, schedule,
@@ -52,6 +53,14 @@ export function useUpdateTaskStatus(id: string) {
     const qc = useQueryClient();
     return useMutation<TaskDto, Error, UpdateTaskStatusRequest>({
         mutationFn: (data) => api.patch<TaskDto>(`/tasks/${id}/status`, data).then(r => r.data),
+        onSuccess: () => invalidateTaskCaches(qc),
+    });
+}
+
+export function useUpdateTaskPriority(id: string) {
+    const qc = useQueryClient();
+    return useMutation<TaskDto, Error, UpdateTaskPriorityRequest>({
+        mutationFn: (data) => api.patch<TaskDto>(`/tasks/${id}/priority`, data).then(r => r.data),
         onSuccess: () => invalidateTaskCaches(qc),
     });
 }

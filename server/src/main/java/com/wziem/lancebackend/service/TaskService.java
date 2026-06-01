@@ -2,6 +2,7 @@ package com.wziem.lancebackend.service;
 
 import com.wziem.lancebackend.api.dto.task.CreateTaskRequest;
 import com.wziem.lancebackend.api.dto.task.TaskDto;
+import com.wziem.lancebackend.api.dto.task.UpdateTaskPriorityRequest;
 import com.wziem.lancebackend.api.dto.task.UpdateTaskRequest;
 import com.wziem.lancebackend.api.dto.task.UpdateTaskStatusRequest;
 import com.wziem.lancebackend.api.mapper.TaskMapper;
@@ -107,6 +108,19 @@ public class TaskService {
                 .orElseThrow(() -> new EntityNotFoundException("Task not found"));
 
         task.setStatus(request.status());
+
+        Task saved = taskRepository.save(task);
+        List<Subtask> subtasks = subtaskRepository.findAllByTaskIdOrderByPositionAsc(id);
+        return taskMapper.toDto(saved, subtasks);
+    }
+
+    @Transactional
+    public TaskDto updateTaskPriority(UUID id, UpdateTaskPriorityRequest request) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+        Task task = taskRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+
+        task.setPriority(request.priority());
 
         Task saved = taskRepository.save(task);
         List<Subtask> subtasks = subtaskRepository.findAllByTaskIdOrderByPositionAsc(id);

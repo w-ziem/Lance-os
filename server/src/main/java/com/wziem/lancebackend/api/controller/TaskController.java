@@ -2,6 +2,7 @@ package com.wziem.lancebackend.api.controller;
 
 import com.wziem.lancebackend.api.dto.task.CreateTaskRequest;
 import com.wziem.lancebackend.api.dto.task.TaskDto;
+import com.wziem.lancebackend.api.dto.task.UpdateTaskPriorityRequest;
 import com.wziem.lancebackend.api.dto.task.UpdateTaskRequest;
 import com.wziem.lancebackend.api.dto.task.UpdateTaskStatusRequest;
 import com.wziem.lancebackend.service.TaskService;
@@ -52,6 +53,14 @@ public class TaskController {
             @Valid @RequestBody UpdateTaskStatusRequest request
     ) {
         return ResponseEntity.ok(taskService.updateTaskStatus(id, request));
+    }
+
+    @PatchMapping("/{id}/priority")
+    public ResponseEntity<TaskDto> updateTaskPriority(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateTaskPriorityRequest request
+    ) {
+        return ResponseEntity.ok(taskService.updateTaskPriority(id, request));
     }
 
     @DeleteMapping("/{id}")

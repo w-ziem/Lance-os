@@ -1,6 +1,6 @@
 import toast from 'react-hot-toast';
-import type { TaskDto, TaskStatus } from '@/types/task';
-import { useUpdateTaskStatus } from '@/hooks/useTask';
+import type { TaskDto, TaskPriority, TaskStatus } from '@/types/task';
+import { useUpdateTaskPriority, useUpdateTaskStatus } from '@/hooks/useTask';
 import SubtaskList from './SubtaskList';
 
 interface TaskDetailDrawerProps {
@@ -16,7 +16,21 @@ const STATUS_LABEL: Record<TaskStatus, string> = {
     DONE:        'Done',
 };
 
+const PRIORITIES: TaskPriority[] = ['LOW', 'MEDIUM', 'HIGH'];
+
+const PRIORITY_LABEL: Record<TaskPriority, string> = {
+    LOW:    'Low',
+    MEDIUM: 'Medium',
+    HIGH:   'High',
+};
+
 const PRIORITY_COLOR = { HIGH: 'bg-(--status-error)', MEDIUM: 'bg-(--status-warning)', LOW: 'bg-(--status-success)' } as const;
+
+const PRIORITY_ACTIVE_STYLE: Record<TaskPriority, string> = {
+    HIGH:   'border-(--status-error) bg-(--status-error-tint) text-(--status-error)',
+    MEDIUM: 'border-(--status-warning) bg-amber-50 text-amber-700',
+    LOW:    'border-(--status-success) bg-(--status-success-tint) text-(--status-success)',
+};
 
 function formatDeadline(iso?: string) {
     if (!iso) return '—';
@@ -38,6 +52,7 @@ function formatEstimate(hours: number | null): string {
 
 export default function TaskDetailDrawer({ task, projectName, open, onClose }: TaskDetailDrawerProps) {
     const statusMutation = useUpdateTaskStatus(task?.id ?? '');
+    const priorityMutation = useUpdateTaskPriority(task?.id ?? '');
 
     async function changeStatus(status: TaskStatus) {
         try {
@@ -45,6 +60,15 @@ export default function TaskDetailDrawer({ task, projectName, open, onClose }: T
             toast.success(`Moved to ${STATUS_LABEL[status]}.`);
         } catch {
             toast.error('Could not move task. Try again.');
+        }
+    }
+
+    async function changePriority(priority: TaskPriority) {
+        try {
+            await priorityMutation.mutateAsync({ priority });
+            toast.success(`Priority set to ${PRIORITY_LABEL[priority].toLowerCase()}.`);
+        } catch {
+            toast.error('Could not update priority. Try again.');
         }
     }
 
@@ -84,10 +108,26 @@ export default function TaskDetailDrawer({ task, projectName, open, onClose }: T
                             <div className="text-[13px] text-(--text-primary)">{formatEstimate(task.estimateHours)}</div>
                         </div>
                         <div className="col-span-2">
-                            <div className="text-[10px] text-(--text-tertiary) uppercase tracking-[0.06em] mb-1">Priority</div>
-                            <div className="flex items-center gap-1.5">
-                                <span className={`w-[7px] h-[7px] rounded-full ${PRIORITY_COLOR[task.priority]}`} />
-                                <span className="text-[13px] text-(--text-primary)">{task.priority.toLowerCase()}</span>
+                            <div className="text-[10px] text-(--text-tertiary) uppercase tracking-[0.06em] mb-2">Priority</div>
+                            <div className="flex gap-2">
+                                {PRIORITIES.map(p => {
+                                    const active = task.priority === p;
+                                    return (
+                                        <button
+                                            key={p}
+                                            disabled={active || priorityMutation.isPending}
+                                            onClick={() => changePriority(p)}
+                                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium font-body border cursor-pointer ${
+                                                active
+                                                    ? PRIORITY_ACTIVE_STYLE[p]
+                                                    : 'border-(--border-default) bg-(--surface) text-(--text-secondary) hover:bg-(--surface-hover)'
+                                            } disabled:cursor-default`}
+                                        >
+                                            <span className={`w-[6px] h-[6px] rounded-full shrink-0 ${PRIORITY_COLOR[p]}`} />
+                                            {PRIORITY_LABEL[p]}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
