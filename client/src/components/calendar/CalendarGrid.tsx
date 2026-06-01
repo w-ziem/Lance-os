@@ -10,6 +10,7 @@ interface CalendarGridProps {
     slotMinutes: number;
     slotHeightPx: number;
     onTaskClick: (task: TaskDto) => void;
+    onTaskResize: (task: TaskDto, newDurationMinutes: number) => void;
 }
 
 const DAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -35,6 +36,7 @@ export default function CalendarGrid({
     slotMinutes,
     slotHeightPx,
     onTaskClick,
+    onTaskResize,
 }: CalendarGridProps) {
     const slotsPerHour = 60 / slotMinutes;
     const totalSlots = (workEndHour - workStartHour) * slotsPerHour;
@@ -124,7 +126,11 @@ export default function CalendarGrid({
                                             key={task.id}
                                             task={task}
                                             style={{ top, height }}
+                                            resizable
+                                            slotHeightPx={slotHeightPx}
+                                            slotMinutes={slotMinutes}
                                             onClick={e => { e.stopPropagation(); onTaskClick(task); }}
+                                            onResize={newDuration => onTaskResize(task, newDuration)}
                                         />
                                     );
                                 })}

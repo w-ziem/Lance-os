@@ -89,6 +89,16 @@ export default function CalendarPage() {
         navigate('/tasks', { state: { openTaskId: task.id } });
     }
 
+    function handleTaskResize(task: TaskDto, newDurationMinutes: number) {
+        if (!task.scheduledStart) return;
+        const start = new Date(task.scheduledStart);
+        const end = new Date(start.getTime() + newDurationMinutes * 60000);
+        scheduleMut.mutate(
+            { id: task.id, data: { startDate: task.scheduledStart, endDate: end.toISOString() } },
+            { onError: (err) => toast.error(extractError(err) ?? 'Could not resize task.') },
+        );
+    }
+
     function handleDragEnd(event: DragEndEvent) {
         setActiveId(null);
         const { active, over } = event;
@@ -193,6 +203,7 @@ export default function CalendarPage() {
                                     slotMinutes={SLOT_MINUTES}
                                     slotHeightPx={SLOT_HEIGHT_PX}
                                     onTaskClick={handleTaskClick}
+                                    onTaskResize={handleTaskResize}
                                 />
                             </div>
 
