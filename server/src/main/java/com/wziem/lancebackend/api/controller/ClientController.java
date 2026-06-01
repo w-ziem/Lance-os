@@ -1,5 +1,6 @@
 package com.wziem.lancebackend.api.controller;
 
+import com.wziem.lancebackend.api.dto.client.ClientDetailDto;
 import com.wziem.lancebackend.api.dto.client.ClientDto;
 import com.wziem.lancebackend.api.dto.client.CreateClientRequest;
 import com.wziem.lancebackend.api.dto.client.UpdateClientRequest;
@@ -26,7 +27,7 @@ public class ClientController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientDto> getClient(@PathVariable UUID id) {
+    public ResponseEntity<ClientDetailDto> getClient(@PathVariable UUID id) {
         return ResponseEntity.ok(clientService.getClient(id));
     }
 

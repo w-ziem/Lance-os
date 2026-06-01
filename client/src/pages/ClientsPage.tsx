@@ -1,12 +1,41 @@
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useClientsQuery, useDeleteClient } from '@/hooks/useClient';
+import { useClientsQuery, useClientQuery, useDeleteClient } from '@/hooks/useClient';
 import type { ClientDto } from '@/types/client';
 import type { AxiosError } from 'axios';
 import SlideDrawer from '@/components/common/SlideDrawer';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ClientForm from '@/components/clients/ClientForm';
 import ClientRow from '@/components/clients/ClientRow';
+
+function ClientProjectStats({ clientId }: { clientId: string }) {
+    const { data } = useClientQuery(clientId);
+
+    const active    = data?.activeProjects ?? 0;
+    const completed = data?.completedProjects ?? 0;
+    const total     = active + completed;
+
+    return (
+        <div>
+            <div className="h-px bg-(--border-default) mb-4" />
+            {total === 0 ? (
+                <p className="text-[13px] text-(--text-tertiary)">No projects yet.</p>
+            ) : (
+                <div className="flex gap-4">
+                    <div>
+                        <span className="text-[20px] font-display font-bold text-(--text-primary)">{active}</span>
+                        <p className="text-[11px] text-(--text-tertiary) mt-0.5">active project{active !== 1 ? 's' : ''}</p>
+                    </div>
+                    <div className="w-px bg-(--border-default)" />
+                    <div>
+                        <span className="text-[20px] font-display font-bold text-(--text-primary)">{completed}</span>
+                        <p className="text-[11px] text-(--text-tertiary) mt-0.5">completed project{completed !== 1 ? 's' : ''}</p>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
 
 export default function ClientsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -138,6 +167,7 @@ export default function ClientsPage() {
         onClose={closeDrawer}
       >
         <ClientForm client={editingClient ?? undefined} onSuccess={closeDrawer} />
+        {editingClient && <ClientProjectStats clientId={editingClient.id} />}
       </SlideDrawer>
 
     </div>

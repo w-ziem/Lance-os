@@ -1,12 +1,15 @@
 package com.wziem.lancebackend.service;
 
+import com.wziem.lancebackend.api.dto.client.ClientDetailDto;
 import com.wziem.lancebackend.api.dto.client.ClientDto;
 import com.wziem.lancebackend.api.dto.client.CreateClientRequest;
 import com.wziem.lancebackend.api.dto.client.UpdateClientRequest;
 import com.wziem.lancebackend.api.mapper.ClientMapper;
 import com.wziem.lancebackend.config.SecurityUtils;
 import com.wziem.lancebackend.model.entity.Client;
+import com.wziem.lancebackend.model.enums.ProjectStatus;
 import com.wziem.lancebackend.model.repository.ClientRepository;
+import com.wziem.lancebackend.model.repository.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,7 @@ import java.util.UUID;
 public class ClientService {
 
     private final ClientRepository clientRepository;
+    private final ProjectRepository projectRepository;
     private final ClientMapper clientMapper;
 
     public List<ClientDto> getAllClients() {
@@ -29,11 +33,17 @@ public class ClientService {
                 .toList();
     }
 
-    public ClientDto getClient(UUID id) {
+    public ClientDetailDto getClient(UUID id) {
         UUID userId = SecurityUtils.getCurrentUserId();
-        return clientRepository.findByIdAndUserId(id, userId)
-                .map(clientMapper::toDto)
+        Client client = clientRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new EntityNotFoundException("Client not found"));
+        long active    = projectRepository.countByUserIdAndClientIdAndStatus(userId, id, ProjectStatus.ACTIVE);
+        long completed = projectRepository.countByUserIdAndClientIdAndStatus(userId, id, ProjectStatus.COMPLETED);
+        return new ClientDetailDto(
+                client.getId(), client.getName(), client.getEmail(),
+                client.getCompanyName(), client.getPhone(), client.getNotes(),
+                client.getCreatedAt(), active, completed
+        );
     }
 
     @Transactional

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/services/api';
-import type { ClientDto, CreateClientRequest, UpdateClientRequest } from '@/types/client';
+import type { ClientDetailDto, ClientDto, CreateClientRequest, UpdateClientRequest } from '@/types/client';
 
 export function useClientsQuery() {
     return useQuery<ClientDto[]>({
@@ -10,9 +10,9 @@ export function useClientsQuery() {
 }
 
 export function useClientQuery(id: string) {
-    return useQuery<ClientDto>({
+    return useQuery<ClientDetailDto>({
         queryKey: ['clients', id],
-        queryFn: () => api.get<ClientDto>(`/clients/${id}`).then(r => r.data),
+        queryFn: () => api.get<ClientDetailDto>(`/clients/${id}`).then(r => r.data),
         enabled: !!id,
     });
 }

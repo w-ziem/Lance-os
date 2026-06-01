@@ -22,6 +22,7 @@ export default function ProjectsPage() {
     const [editing, setEditing] = useState<ProjectDto | null>(null);
     const [toDelete, setToDelete] = useState<ProjectDto | null>(null);
     const [filter, setFilter] = useState<Filter>('ALL');
+    const [clientFilter, setClientFilter] = useState<string | null>(null);
 
     const { data: projects, isLoading, isError } = useProjectsQuery();
     const { data: clients = [] } = useClientsQuery();
@@ -47,7 +48,10 @@ export default function ProjectsPage() {
     function openEdit(project: ProjectDto) { setEditing(project); setDrawerOpen(true); }
     function closeDrawer() { setDrawerOpen(false); }
 
-    const filtered = (projects ?? []).filter(p => filter === 'ALL' || p.status === filter);
+    const filtered = (projects ?? []).filter(p =>
+        (filter === 'ALL' || p.status === filter) &&
+        (clientFilter === null || p.clientId === clientFilter)
+    );
 
     return (
         <div className="flex h-full overflow-hidden">
@@ -69,6 +73,34 @@ export default function ProjectsPage() {
                         New project
                     </button>
                 </div>
+
+                {clients.length > 0 && (
+                    <div className="flex gap-1.5 mb-2.5 flex-wrap">
+                        <button
+                            onClick={() => setClientFilter(null)}
+                            className={`px-3.5 py-[5px] rounded-full text-[12px] font-medium font-body cursor-pointer border ${
+                                clientFilter === null
+                                    ? 'border-[var(--accent)] bg-[var(--accent-tint)] text-[var(--accent)]'
+                                    : 'border-(--border-default) bg-(--surface) text-(--text-secondary)'
+                            }`}
+                        >
+                            All clients
+                        </button>
+                        {clients.map(c => (
+                            <button
+                                key={c.id}
+                                onClick={() => setClientFilter(c.id)}
+                                className={`px-3.5 py-[5px] rounded-full text-[12px] font-medium font-body cursor-pointer border ${
+                                    clientFilter === c.id
+                                        ? 'border-[var(--accent)] bg-[var(--accent-tint)] text-[var(--accent)]'
+                                        : 'border-(--border-default) bg-(--surface) text-(--text-secondary)'
+                                }`}
+                            >
+                                {c.name}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 <div className="flex gap-1.5 mb-5 flex-wrap">
                     {FILTERS.map(f => {

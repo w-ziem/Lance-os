@@ -10,6 +10,11 @@ export interface ClientDto {
     createdAt: string;
 }
 
+export interface ClientDetailDto extends ClientDto {
+    activeProjects: number;
+    completedProjects: number;
+}
+
 export interface CreateClientRequest {
     name: string;
     email: string;
