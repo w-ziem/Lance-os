@@ -2,6 +2,7 @@ package com.wziem.lancebackend.api.dto.project;
 
 import com.wziem.lancebackend.model.enums.ProjectStatus;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -14,5 +15,6 @@ public record ProjectDto(
         ProjectStatus status,
         LocalDate deadline,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        BigDecimal budget
 ) {}
