@@ -11,6 +11,7 @@ export interface ProjectDto {
     deadline: string; // LocalDate: YYYY-MM-DD
     createdAt: string;
     updatedAt: string;
+    budget: number | null;
 }
 
 export interface CreateProjectRequest {
@@ -19,6 +20,7 @@ export interface CreateProjectRequest {
     description?: string;
     status?: ProjectStatus;
     deadline?: string; // LocalDate: YYYY-MM-DD
+    budget?: number;
 }
 
 export interface UpdateProjectRequest {
@@ -26,6 +28,7 @@ export interface UpdateProjectRequest {
     clientId: string;
     description?: string;
     deadline?: string; // LocalDate: YYYY-MM-DD
+    budget?: number;
 }
 
 export interface UpdateProjectStatusRequest {

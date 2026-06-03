@@ -8,6 +8,10 @@ import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ClientForm from '@/components/clients/ClientForm';
 import ClientRow from '@/components/clients/ClientRow';
 
+function fmt(value: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+}
+
 function ClientProjectStats({ clientId }: { clientId: string }) {
   const { data } = useClientQuery(clientId);
 
@@ -33,6 +37,32 @@ function ClientProjectStats({ clientId }: { clientId: string }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ClientRevenueStats({ clientId }: { clientId: string }) {
+  const { data } = useClientQuery(clientId);
+
+  const revenue = data?.revenue ?? 0;
+  const projected = data?.projectedRevenue ?? 0;
+
+  if (projected === 0) return null;
+
+  return (
+    <div>
+      <div className="h-px bg-(--border-default) mb-4" />
+      <div className="flex gap-4">
+        <div>
+          <span className="text-[20px] font-display font-bold text-(--status-success)">{fmt(revenue)}</span>
+          <p className="text-[11px] text-(--text-tertiary) mt-0.5">earned (completed)</p>
+        </div>
+        <div className="w-px bg-(--border-default)" />
+        <div>
+          <span className="text-[20px] font-display font-bold text-(--text-primary)">{fmt(projected)}</span>
+          <p className="text-[11px] text-(--text-tertiary) mt-0.5">pipeline (all active)</p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -168,6 +198,7 @@ export default function ClientsPage() {
       >
         <ClientForm client={editingClient ?? undefined} onSuccess={closeDrawer} />
         {editingClient && <ClientProjectStats clientId={editingClient.id} />}
+        {editingClient && <ClientRevenueStats clientId={editingClient.id} />}
       </SlideDrawer>
 
     </div>

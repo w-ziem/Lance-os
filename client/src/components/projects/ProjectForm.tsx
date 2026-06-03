@@ -22,6 +22,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         description: project?.description ?? '',
         status: project?.status ?? ('ACTIVE' as ProjectStatus),
         deadline: project?.deadline ?? '',
+        budget: project?.budget?.toString() ?? '',
     });
     const [errors, setErrors] = useState({ name: '', clientId: '' });
 
@@ -48,12 +49,15 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps) {
         if (newErrors.name || newErrors.clientId) return;
 
         try {
+            const budget = data.budget ? parseFloat(data.budget) : undefined;
+
             if (project) {
                 await updateMutation.mutateAsync({
                     name: data.name,
                     clientId: data.clientId,
                     description: data.description || undefined,
                     deadline: data.deadline || undefined,
+                    budget,
                 });
                 if (data.status !== project.status) {
                     await statusMutation.mutateAsync({ status: data.status });
@@ -65,6 +69,7 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                     description: data.description || undefined,
                     status: data.status,
                     deadline: data.deadline || undefined,
+                    budget,
                 });
             }
             toast.success(project ? 'Project updated.' : 'Project added.');
@@ -117,6 +122,15 @@ export default function ProjectForm({ project, onSuccess }: ProjectFormProps) {
                     className="border border-(--border-default) rounded-lg px-3 py-[10px] text-[13px] font-body text-(--text-primary) bg-(--surface) outline-none resize-y focus:border-[var(--accent)] focus:shadow-[0_0_0_3px_var(--accent-ring)]"
                 />
             </div>
+
+            <FormField
+                label="Budget"
+                name="budget"
+                type="number"
+                value={data.budget}
+                onChange={handleChange('budget')}
+                placeholder="5000"
+            />
 
             <SubmitButton isLoading={isLoading}>
                 {project ? 'Update project' : 'Save project'}

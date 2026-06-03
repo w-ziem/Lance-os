@@ -22,6 +22,10 @@ function formatDeadline(iso?: string) {
     return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
+function formatBudget(value: number) {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+}
+
 export default function ProjectCard({ project, clientName, taskCount = 0, doneCount = 0, onClick }: ProjectCardProps) {
     const progress = taskCount > 0
         ? Math.round((doneCount / taskCount) * 100)
@@ -47,12 +51,19 @@ export default function ProjectCard({ project, clientName, taskCount = 0, doneCo
                 <div className="text-[11px] text-(--text-tertiary)">
                     {taskCount > 0 ? `${doneCount}/${taskCount} tasks` : `${progress}%`}
                 </div>
-                <div className="text-[11px] text-(--text-tertiary) flex items-center gap-1">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                    {formatDeadline(project.deadline)}
+                <div className="flex items-center gap-2.5">
+                    {project.budget != null && project.budget > 0 && (
+                        <span className="text-[11px] font-medium text-(--status-success)">
+                            {formatBudget(project.budget)}
+                        </span>
+                    )}
+                    <div className="text-[11px] text-(--text-tertiary) flex items-center gap-1">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        {formatDeadline(project.deadline)}
+                    </div>
                 </div>
             </div>
         </div>

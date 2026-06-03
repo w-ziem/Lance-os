@@ -13,6 +13,8 @@ export interface ClientDto {
 export interface ClientDetailDto extends ClientDto {
     activeProjects: number;
     completedProjects: number;
+    revenue: number;
+    projectedRevenue: number;
 }
 
 export interface CreateClientRequest {
