@@ -11,10 +11,12 @@ import com.wziem.lancebackend.model.enums.ProjectStatus;
 import com.wziem.lancebackend.model.repository.ClientRepository;
 import com.wziem.lancebackend.model.repository.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,10 +41,12 @@ public class ClientService {
                 .orElseThrow(() -> new EntityNotFoundException("Client not found"));
         long active    = projectRepository.countByUserIdAndClientIdAndStatus(userId, id, ProjectStatus.ACTIVE);
         long completed = projectRepository.countByUserIdAndClientIdAndStatus(userId, id, ProjectStatus.COMPLETED);
+        BigDecimal revenue = projectRepository.sumCompletedBudgetByClient(userId, id);
+        BigDecimal projectedRevenue = projectRepository.sumProjectedBudgetByClient(userId, id);
         return new ClientDetailDto(
                 client.getId(), client.getName(), client.getEmail(),
                 client.getCompanyName(), client.getPhone(), client.getNotes(),
-                client.getCreatedAt(), active, completed
+                client.getCreatedAt(), active, completed, revenue, projectedRevenue
         );
     }
 

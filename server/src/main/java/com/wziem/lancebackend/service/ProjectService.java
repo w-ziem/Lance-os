@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,6 +54,7 @@ public class ProjectService {
                 .description(request.description())
                 .status(request.status() != null ? request.status() : ProjectStatus.ACTIVE)
                 .deadline(request.deadline())
+                .budget(request.budget() != null ? request.budget() : BigDecimal.ZERO)
                 .build();
 
         return projectMapper.toDto(projectRepository.save(project));
@@ -72,6 +74,7 @@ public class ProjectService {
         project.setClientId(request.clientId());
         project.setDescription(request.description());
         project.setDeadline(request.deadline());
+        project.setBudget(request.budget() != null ? request.budget() : project.getBudget());
 
         return projectMapper.toDto(projectRepository.save(project));
     }

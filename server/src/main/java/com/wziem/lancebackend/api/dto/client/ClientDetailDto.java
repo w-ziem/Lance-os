@@ -1,5 +1,6 @@
 package com.wziem.lancebackend.api.dto.client;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -12,5 +13,7 @@ public record ClientDetailDto(
         String notes,
         Instant createdAt,
         long activeProjects,
-        long completedProjects
+        long completedProjects,
+        BigDecimal revenue,
+        BigDecimal projectedRevenue
 ) {}

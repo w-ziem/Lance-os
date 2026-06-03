@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -13,5 +14,6 @@ public record CreateProjectRequest(
         @NotNull UUID clientId,
         String description,
         ProjectStatus status,
-        LocalDate deadline
+        LocalDate deadline,
+        BigDecimal budget
 ) {}
