@@ -1,11 +1,13 @@
 package com.wziem.lancebackend.model.repository;
 
 import com.wziem.lancebackend.model.entity.Task;
+import com.wziem.lancebackend.model.enums.TaskPriority;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,6 +21,10 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     Optional<Task> findByIdAndUserId(UUID id, UUID userId);
 
     boolean existsByIdAndUserId(UUID id, UUID userId);
+
+    long countByUserIdAndDeadline(UUID userId, LocalDate deadline);
+
+    long countByUserIdAndDeadlineAndPriority(UUID userId, LocalDate deadline, TaskPriority priority);
 
     @Query("""
         SELECT t FROM Task t
