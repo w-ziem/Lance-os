@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useProjectsQuery, useDeleteProject } from '@/hooks/useProject';
 import { useClientsQuery } from '@/hooks/useClient';
 import { useTasksQuery } from '@/hooks/useTask';
@@ -18,7 +19,12 @@ const FILTERS: { value: Filter; label: string }[] = [
 ];
 
 export default function ProjectsPage() {
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const [drawerOpen, setDrawerOpen] = useState(
+        () => !!(location.state as { openCreate?: boolean } | null)?.openCreate
+    );
     const [editing, setEditing] = useState<ProjectDto | null>(null);
     const [toDelete, setToDelete] = useState<ProjectDto | null>(null);
     const [filter, setFilter] = useState<Filter>('ALL');
@@ -43,6 +49,13 @@ export default function ProjectsPage() {
         });
         return map;
     }, [tasks]);
+
+    // Clear router state so a refresh doesn't re-open the drawer.
+    useEffect(() => {
+        if ((location.state as { openCreate?: boolean } | null)?.openCreate) {
+            navigate(location.pathname, { replace: true, state: null });
+        }
+    }, [location.pathname, location.state, navigate]);
 
     function openCreate() { setEditing(null); setDrawerOpen(true); }
     function openEdit(project: ProjectDto) { setEditing(project); setDrawerOpen(true); }

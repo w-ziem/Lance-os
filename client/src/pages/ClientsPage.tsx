@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useClientsQuery, useClientQuery, useDeleteClient } from '@/hooks/useClient';
 import type { ClientDto } from '@/types/client';
@@ -68,13 +69,25 @@ function ClientRevenueStats({ clientId }: { clientId: string }) {
 }
 
 export default function ClientsPage() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [drawerOpen, setDrawerOpen] = useState(
+    () => !!(location.state as { openCreate?: boolean } | null)?.openCreate
+  );
   const [editingClient, setEditingClient] = useState<ClientDto | null>(null);
   const [clientToDelete, setClientToDelete] = useState<ClientDto | null>(null);
   const [search, setSearch] = useState('');
 
   const { data: clients, isLoading, isError } = useClientsQuery();
   const deleteMutation = useDeleteClient();
+
+  // Clear router state so a refresh doesn't re-open the drawer.
+  useEffect(() => {
+    if ((location.state as { openCreate?: boolean } | null)?.openCreate) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   function openCreate() { setEditingClient(null); setDrawerOpen(true); }
   function openEdit(client: ClientDto) { setEditingClient(client); setDrawerOpen(true); }
