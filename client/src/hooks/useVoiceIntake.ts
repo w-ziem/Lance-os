@@ -55,6 +55,7 @@ export function useVoiceIntakeMutation() {
             queryClient.invalidateQueries({ queryKey: ['clients'] });
             queryClient.invalidateQueries({ queryKey: ['projects'] });
             queryClient.invalidateQueries({ queryKey: ['tasks'] });
+            queryClient.invalidateQueries({ queryKey: ['schedule'] });
             queryClient.invalidateQueries({ queryKey: ['dashboard', 'summary'] });
         },
     });
