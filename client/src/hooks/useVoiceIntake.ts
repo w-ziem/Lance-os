@@ -46,7 +46,9 @@ export function useVoiceIntakeMutation() {
         mutationFn: async (blob: Blob) => {
             const formData = new FormData();
             formData.append('audio', blob, 'recording.webm');
-            const res = await api.post<VoiceIntakeResultDto>('/ai/voice-intake', formData);
+            const res = await api.post<VoiceIntakeResultDto>('/ai/voice-intake', formData, {
+                headers: { 'Content-Type': undefined },
+            });
             return res.data;
         },
         onSuccess: () => {
