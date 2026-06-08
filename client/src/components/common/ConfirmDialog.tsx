@@ -1,3 +1,5 @@
+import { createPortal } from 'react-dom';
+
 interface ConfirmDialogProps {
     open: boolean;
     title: string;
@@ -11,7 +13,7 @@ interface ConfirmDialogProps {
 export default function ConfirmDialog({ open, title, message, warning, confirmLabel = 'Delete', onConfirm, onCancel }: ConfirmDialogProps) {
     if (!open) return null;
 
-    return (
+    return createPortal(
         <div onClick={onCancel} className="fixed inset-0 bg-black/25 flex items-center justify-center z-50">
             <div onClick={e => e.stopPropagation()} className="bg-(--surface) border border-(--border-default) rounded-xl p-6 w-[380px] shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
 
@@ -53,6 +55,7 @@ export default function ConfirmDialog({ open, title, message, warning, confirmLa
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

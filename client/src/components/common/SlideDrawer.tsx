@@ -1,4 +1,5 @@
-import { type ReactNode } from 'react'
+import { type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 interface SlideDrawerProps {
     open: boolean;
@@ -8,7 +9,7 @@ interface SlideDrawerProps {
 };
 
 export default function SlideDrawer({ open, title, onClose, children }: SlideDrawerProps) {
-    return (
+    return createPortal(
         <div
             className={`fixed top-0 right-0 h-screen w-[380px] bg-(--surface) border-l border-(--border-default) shadow-[-6px_0_24px_rgba(0,0,0,0.07)] flex flex-col z-50 transition-transform duration-300 ease-in-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
             aria-hidden={!open}
@@ -32,6 +33,7 @@ export default function SlideDrawer({ open, title, onClose, children }: SlideDra
             <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
                 {open && children}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useVoiceRecorder, useVoiceIntakeMutation } from '@/hooks/useVoiceIntake';
 import type { VoiceIntakeResultDto } from '@/types/ai';
@@ -105,7 +106,7 @@ export default function VoiceIntakeModal({ open, onClose }: Props) {
 
     if (!open) return null;
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div
                 className="absolute inset-0 bg-black/40"
@@ -241,6 +242,7 @@ export default function VoiceIntakeModal({ open, onClose }: Props) {
                     </>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
