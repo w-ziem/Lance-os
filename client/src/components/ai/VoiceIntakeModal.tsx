@@ -80,8 +80,7 @@ export default function VoiceIntakeModal({ open, onClose }: Props) {
             submittingRef.current = false;
             reset();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+    }, [open, reset]);
 
     async function handleStart() {
         try {
