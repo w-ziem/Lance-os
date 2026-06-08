@@ -14,6 +14,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -22,38 +23,44 @@ public class AiService {
 
     private static final String OPENAI_BASE_URL = "https://api.openai.com/v1";
 
-    private static final String SYSTEM_PROMPT = """
-            You are a business data extractor for a freelance management system.
-            Extract structured data from the voice transcript provided by the user.
+    private String buildSystemPrompt() {
+        return """
+                You are a business data extractor for a freelance management system.
+                Today's date is %s. Use this as the reference point for all relative dates
+                (e.g. "end of the month" means the last day of the current month,
+                "next week" means the week starting %s, etc.).
 
-            Return ONLY valid JSON with these exact camelCase field names:
-            {
-              "client": {
-                "name": "string (required — full name or company name)",
-                "email": "string or null",
-                "companyName": "string or null",
-                "phone": "string or null",
-                "notes": "string or null"
-              },
-              "project": {
-                "name": "string (required — infer from work description, e.g. 'Website Development')",
-                "description": "string or null",
-                "deadline": "YYYY-MM-DD or null",
-                "budget": number or null
-              },
-              "tasks": [
+                Extract structured data from the voice transcript provided by the user.
+
+                Return ONLY valid JSON with these exact camelCase field names:
                 {
-                  "title": "string (required)",
-                  "description": "string or null",
-                  "priority": "LOW or MEDIUM or HIGH"
+                  "client": {
+                    "name": "string (required — full name or company name)",
+                    "email": "string or null",
+                    "companyName": "string or null",
+                    "phone": "string or null",
+                    "notes": "string or null"
+                  },
+                  "project": {
+                    "name": "string (required — infer from work description, e.g. 'Website Development')",
+                    "description": "string or null",
+                    "deadline": "YYYY-MM-DD or null (must be a future date relative to today)",
+                    "budget": number or null
+                  },
+                  "tasks": [
+                    {
+                      "title": "string (required)",
+                      "description": "string or null",
+                      "priority": "LOW or MEDIUM or HIGH"
+                    }
+                  ]
                 }
-              ]
-            }
 
-            Rules:
-            - tasks may be an empty array [] if no specific tasks were mentioned
-            - Return ONLY the JSON object — no markdown fences, no explanation
-            """;
+                Rules:
+                - tasks may be an empty array [] if no specific tasks were mentioned
+                - Return ONLY the JSON object — no markdown fences, no explanation
+                """.formatted(LocalDate.now(), LocalDate.now().plusDays(7));
+    }
 
     private final String apiKey;
     private final String model;
@@ -106,7 +113,7 @@ public class AiService {
             GptRequest request = new GptRequest(
                     model,
                     List.of(
-                            new GptMessage("system", SYSTEM_PROMPT),
+                            new GptMessage("system", buildSystemPrompt()),
                             new GptMessage("user", transcript)
                     ),
                     new ResponseFormat("json_object")
