@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import VoiceIntakeButton from '@/components/ai/VoiceIntakeButton';
 
 interface Action {
     label: string;
@@ -77,6 +78,7 @@ export default function QuickActions() {
 
     return (
         <div className="flex gap-2.5 flex-wrap">
+            <VoiceIntakeButton />
             {actions.map((action) => (
                 <button
                     key={action.label}
