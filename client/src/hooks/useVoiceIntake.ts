@@ -46,6 +46,7 @@ export function useVoiceIntakeMutation() {
         mutationFn: async (blob: Blob) => {
             const formData = new FormData();
             formData.append('audio', blob, 'recording.webm');
+            formData.append('timezone', Intl.DateTimeFormat().resolvedOptions().timeZone);
             const res = await api.post<VoiceIntakeResultDto>('/ai/voice-intake', formData, {
                 headers: { 'Content-Type': undefined },
             });

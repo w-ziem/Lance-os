@@ -195,7 +195,18 @@ export default function VoiceIntakeModal({ open, onClose }: Props) {
                             <div className="mt-4 bg-(--bg-secondary) rounded-xl p-4 text-left space-y-2.5">
                                 <Row label="Client" value={result.client.name} />
                                 <Row label="Project" value={result.project.name} />
-                                <Row label="Tasks" value={`${result.tasks.length} created`} />
+                                <Row label="Budget" value={
+                                    result.project.budget != null
+                                        ? `$${Number(result.project.budget).toLocaleString()}`
+                                        : 'Not specified'
+                                } />
+                                <Row label="Tasks" value={(() => {
+                                    const scheduled = result.tasks.filter(t => t.scheduledStart != null).length;
+                                    const total = result.tasks.length;
+                                    return scheduled > 0
+                                        ? `${total} created (${scheduled} on calendar)`
+                                        : `${total} created`;
+                                })()} />
                             </div>
                             {result.client.notes?.includes('Email not captured') && (
                                 <p className="text-[12px] text-(--text-tertiary) mt-3">
