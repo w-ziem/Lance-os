@@ -30,6 +30,9 @@ public record ExtractedClientData(
     public record ExtractedTask(
             String title,
             String description,
-            String priority
+            String priority,
+            String scheduledDate,
+            Integer scheduledHour,
+            Double estimatedHours
     ) {}
 }
