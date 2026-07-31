@@ -8,6 +8,7 @@ import SlideDrawer from '@/components/common/SlideDrawer';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ProjectCard from '@/components/projects/ProjectCard';
 import ProjectForm from '@/components/projects/ProjectForm';
+import ScopeSection from '@/components/projects/ScopeSection';
 
 type Filter = 'ALL' | ProjectStatus;
 const FILTERS: { value: Filter; label: string }[] = [
@@ -198,6 +199,7 @@ export default function ProjectsPage() {
                 onClose={closeDrawer}
             >
                 <ProjectForm project={editing ?? undefined} onSuccess={closeDrawer} />
+                {editing && <ScopeSection projectId={editing.id} />}
             </SlideDrawer>
         </div>
     );
