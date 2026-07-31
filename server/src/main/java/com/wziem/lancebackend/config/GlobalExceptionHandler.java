@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.wziem.lancebackend.exceptions.BadAuthenticationException;
+import com.wziem.lancebackend.exceptions.ProposalStateException;
 import com.wziem.lancebackend.exceptions.ScheduleConflictException;
 import com.wziem.lancebackend.exceptions.UserAlreadyRegisteredException;
 import com.wziem.lancebackend.exceptions.UserNotRegisteredException;
@@ -59,6 +60,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ScheduleConflictException.class)
     public ResponseEntity<String> handleScheduleConflict(ScheduleConflictException e) {
+        return ResponseEntity.status(409).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ProposalStateException.class)
+    public ResponseEntity<String> handleProposalState(ProposalStateException e) {
         return ResponseEntity.status(409).body(e.getMessage());
     }
 
