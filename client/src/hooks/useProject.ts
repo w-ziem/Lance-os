@@ -21,7 +21,10 @@ export function useCreateProject() {
     const qc = useQueryClient();
     return useMutation<ProjectDto, Error, CreateProjectRequest>({
         mutationFn: (data) => api.post<ProjectDto>('/projects', data).then(r => r.data),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['projects'] }),
+        onSuccess: () => Promise.all([
+            qc.invalidateQueries({ queryKey: ['projects'] }),
+            qc.invalidateQueries({ queryKey: ['dashboard', 'summary'] }),
+        ]),
     });
 }
 
@@ -40,6 +43,7 @@ export function useUpdateProjectStatus(id: string) {
         onSuccess: (updatedProject) => {
             qc.invalidateQueries({ queryKey: ['projects'] });
             qc.invalidateQueries({ queryKey: ['clients', updatedProject.clientId] });
+            qc.invalidateQueries({ queryKey: ['dashboard', 'summary'] });
         },
     });
 }
@@ -52,6 +56,8 @@ export function useDeleteProject() {
             qc.invalidateQueries({ queryKey: ['projects'] }),
             qc.invalidateQueries({ queryKey: ['tasks'] }),
             qc.invalidateQueries({ queryKey: ['clients'] }),
+            qc.invalidateQueries({ queryKey: ['schedule'] }),
+            qc.invalidateQueries({ queryKey: ['dashboard', 'summary'] }),
         ]),
     });
 }

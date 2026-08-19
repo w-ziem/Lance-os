@@ -101,7 +101,9 @@ export default function TasksPage() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+    const [editDrawerOpen, setEditDrawerOpen] = useState(
+        () => !!(location.state as { openCreate?: boolean } | null)?.openCreate
+    );
     const [editing, setEditing] = useState<TaskDto | null>(null);
     const [selectedId, setSelectedId] = useState<string | null>(
         () => (location.state as { openTaskId?: string } | null)?.openTaskId ?? null,
@@ -111,10 +113,10 @@ export default function TasksPage() {
     const [activeId, setActiveId] = useState<string | null>(null);
     const [overId, setOverId] = useState<string | null>(null);
 
-    // Clear router state after we consume `openTaskId` so a refresh / re-mount
-    // doesn't keep popping the drawer.
+    // Clear router state so a refresh doesn't re-open drawers.
     useEffect(() => {
-        if ((location.state as { openTaskId?: string } | null)?.openTaskId) {
+        const state = location.state as { openTaskId?: string; openCreate?: boolean } | null;
+        if (state?.openTaskId || state?.openCreate) {
             navigate(location.pathname, { replace: true, state: null });
         }
     }, [location.pathname, location.state, navigate]);

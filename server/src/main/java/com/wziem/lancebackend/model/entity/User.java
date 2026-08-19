@@ -24,4 +24,9 @@ public class User {
 
     @Column(name = "full_name", nullable = false)
     private String fullName;
+
+    // Null until the user sets it — "not configured" is distinct from a rate of 0
+    @Column(name = "hourly_rate")
+    private Double hourlyRate;
+
 }

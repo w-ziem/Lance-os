@@ -12,6 +12,7 @@ import ClientsPage from '@pages/ClientsPage';
 import ProjectsPage from '@pages/ProjectsPage';
 import TasksPage from '@pages/TasksPage';
 import CalendarPage from '@pages/CalendarPage';
+import SettingsPage from '@pages/SettingsPage';
 
 // Provider order matters:
 //   QueryClientProvider → AuthProvider → BrowserRouter
@@ -61,6 +62,7 @@ export default function App() {
                 <Route path="/projects" element={<ProjectsPage />} />
                 <Route path="/tasks" element={<TasksPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
               </Route>
             </Route>
 

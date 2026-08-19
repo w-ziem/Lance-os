@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useClientsQuery, useClientQuery, useDeleteClient } from '@/hooks/useClient';
 import type { ClientDto } from '@/types/client';
@@ -7,6 +8,7 @@ import SlideDrawer from '@/components/common/SlideDrawer';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import ClientForm from '@/components/clients/ClientForm';
 import ClientRow from '@/components/clients/ClientRow';
+import VoiceIntakeButton from '@/components/ai/VoiceIntakeButton';
 
 function fmt(value: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
@@ -68,13 +70,25 @@ function ClientRevenueStats({ clientId }: { clientId: string }) {
 }
 
 export default function ClientsPage() {
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [drawerOpen, setDrawerOpen] = useState(
+    () => !!(location.state as { openCreate?: boolean } | null)?.openCreate
+  );
   const [editingClient, setEditingClient] = useState<ClientDto | null>(null);
   const [clientToDelete, setClientToDelete] = useState<ClientDto | null>(null);
   const [search, setSearch] = useState('');
 
   const { data: clients, isLoading, isError } = useClientsQuery();
   const deleteMutation = useDeleteClient();
+
+  // Clear router state so a refresh doesn't re-open the drawer.
+  useEffect(() => {
+    if ((location.state as { openCreate?: boolean } | null)?.openCreate) {
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.pathname, location.state, navigate]);
 
   function openCreate() { setEditingClient(null); setDrawerOpen(true); }
   function openEdit(client: ClientDto) { setEditingClient(client); setDrawerOpen(true); }
@@ -101,15 +115,18 @@ export default function ClientsPage() {
               {filtered.length} total
             </p>
           </div>
-          <button
-            onClick={openCreate}
-            className="btn-accent flex items-center gap-1.5 bg-(--accent) text-white border-none rounded-lg px-3.5 py-[9px] text-[13px] font-semibold font-body cursor-pointer shadow-[rgba(79,70,229,0.27)_0_2px_12px]"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            Add client
-          </button>
+          <div className="flex gap-2 items-center">
+            <VoiceIntakeButton />
+            <button
+              onClick={openCreate}
+              className="btn-accent flex items-center gap-1.5 bg-(--accent) text-white border-none rounded-lg px-3.5 py-[9px] text-[13px] font-semibold font-body cursor-pointer shadow-[rgba(79,70,229,0.27)_0_2px_12px]"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              Add client
+            </button>
+          </div>
         </div>
 
         {/* Search */}

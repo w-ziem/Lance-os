@@ -20,8 +20,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -118,6 +123,52 @@ public class ScheduleService {
 
         Task saved = taskRepository.save(task);
         return toDtoWithSubtasks(saved);
+    }
+
+    /**
+     * Tries to schedule a task created during voice intake.
+     * Unlike scheduleTask(), this method never bumps other tasks —
+     * any overlap (locked or not) means the task stays unscheduled.
+     */
+    @Transactional
+    public Optional<TaskDto> scheduleForIntake(
+            UUID taskId,
+            LocalDate date,
+            Integer requestedHour,
+            Double durationHours,
+            ZoneId zone) {
+
+        double duration = durationHours != null ? durationHours : 1.0;
+        long durationSeconds = (long) (duration * 3600);
+        long durationMinutes = (long) (duration * 60);
+
+        UUID userId = SecurityUtils.getCurrentUserId();
+        Task task = taskRepository.findByIdAndUserId(taskId, userId)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+
+        List<Instant[]> candidates = new ArrayList<>();
+        if (requestedHour != null) {
+            Instant start = date.atTime(requestedHour, 0).atZone(zone).toInstant();
+            candidates.add(new Instant[]{start, start.plusSeconds(durationSeconds)});
+        } else {
+            LocalTime cursor = LocalTime.of(scheduleProperties.getWorkStartHour(), 0);
+            LocalTime workEnd = LocalTime.of(scheduleProperties.getWorkEndHour(), 0);
+            while (!cursor.plusMinutes(durationMinutes).isAfter(workEnd)) {
+                Instant start = date.atTime(cursor).atZone(zone).toInstant();
+                candidates.add(new Instant[]{start, start.plusSeconds(durationSeconds)});
+                cursor = cursor.plusMinutes(scheduleProperties.getSlotMinutes());
+            }
+        }
+
+        for (Instant[] slot : candidates) {
+            if (taskRepository.findOverlapping(userId, taskId, slot[0], slot[1]).isEmpty()) {
+                task.setScheduledStart(slot[0]);
+                task.setScheduledEnd(slot[1]);
+                taskRepository.save(task);
+                return Optional.of(toDtoWithSubtasks(task));
+            }
+        }
+        return Optional.empty();
     }
 
     @Transactional

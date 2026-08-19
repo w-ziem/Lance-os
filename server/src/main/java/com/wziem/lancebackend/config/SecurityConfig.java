@@ -48,7 +48,7 @@ public class SecurityConfig {
                         "/auth/send-code",
                         "/auth/login-request",
                         "/auth/verify-code",
-                        "/auth/`",
+                        "/auth/refresh",
                         "/auth/logout",
                         "/actuator/health",
                         "/actuator/health/**",

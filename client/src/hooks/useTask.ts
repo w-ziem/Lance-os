@@ -14,6 +14,7 @@ import type {
 export function invalidateTaskCaches(qc: QueryClient) {
     qc.invalidateQueries({ queryKey: ['tasks'] });
     qc.invalidateQueries({ queryKey: ['schedule'] });
+    qc.invalidateQueries({ queryKey: ['dashboard', 'summary'] });
 }
 
 export function useTasksQuery(projectId?: string) {

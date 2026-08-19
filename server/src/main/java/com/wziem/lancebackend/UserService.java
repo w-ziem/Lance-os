@@ -1,6 +1,7 @@
 package com.wziem.lancebackend;
 
 import com.wziem.lancebackend.api.dto.auth.RegisterRequest;
+import com.wziem.lancebackend.api.dto.user.UpdateHourlyRateRequest;
 import com.wziem.lancebackend.api.dto.user.UserDto;
 import com.wziem.lancebackend.config.SecurityUtils;
 import com.wziem.lancebackend.config.auth.AuthCodeProperties;
@@ -192,7 +193,22 @@ public class UserService {
     }
 
     public UserDto getMe() {
-        User user = userRepository.findById(SecurityUtils.getCurrentUserId()).orElseThrow(() -> new UsernameNotFoundException("User not logged in or user not found."));
-        return new UserDto(user.getId(), user.getEmail(), user.getFullName());
+        return toDto(findCurrentUser());
+    }
+
+    @Transactional
+    public UserDto updateHourlyRate(UpdateHourlyRateRequest request) {
+        User user = findCurrentUser();
+        user.setHourlyRate(request.hourlyRate());
+        return toDto(userRepository.save(user));
+    }
+
+    private User findCurrentUser() {
+        return userRepository.findById(SecurityUtils.getCurrentUserId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not logged in or user not found."));
+    }
+
+    private UserDto toDto(User user) {
+        return new UserDto(user.getId(), user.getEmail(), user.getFullName(), user.getHourlyRate());
     }
 }

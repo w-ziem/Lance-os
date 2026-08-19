@@ -31,4 +31,9 @@ export interface AuthUser {
   id: string;
   email: string;
   fullName: string;
+  hourlyRate: number | null;
+}
+
+export interface UpdateHourlyRateRequest {
+  hourlyRate: number;
 }
